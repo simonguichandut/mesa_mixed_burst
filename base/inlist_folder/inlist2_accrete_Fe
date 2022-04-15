@@ -1,0 +1,51 @@
+! Accrete 56Fe until a column y=1e11 (already a column 1e9, which is negligible)
+! max_model_number = 4piR^2*y/mdot/dt (dt=max_years_for_timestep)
+
+&star_job    
+
+  saved_model_name = 'models/ns_env_12km.mod'
+  save_model_filename = 'models/ns_env_56Fe.mod'
+
+  !! Set optical depth boundary
+  set_tau_factor = .true. 
+  !$set_to_this_tau_factor = 1000
+
+  !! Run-specific inlist
+  read_extra_star_job_inlist2 = .true.
+  extra_star_job_inlist2_name = 'inlist_folder/inlist2_accrete_Fe'
+
+/ ! end of star_job namelist
+
+&controls      
+
+  !! Accrete
+  mass_change = 1.0d-5 ! Msun/year
+  accrete_same_as_surface = .false. 
+  accrete_given_mass_fractions = .true. 
+  num_accretion_species = 1
+  accretion_species_xa(1) = 1
+  accretion_species_id(1) = 'fe56'
+
+  max_years_for_timestep = 1.0d-6
+  max_model_number = 100
+  ! Allow large increases in central temperature and timestep so it takes
+  ! the timestep that we want
+  delta_lgT_cntr_limit = 1.0d0 !default 0.01d0
+  max_timestep_factor = 10.0d0 !default 1.2d0
+
+  !! Turn off nuclear burning
+  max_abar_for_burning = -1
+
+  !! Resolution
+  mesh_delta_coeff = 0.5
+  min_timestep_limit = 1d-12
+
+  !! Files
+  photo_interval = 1000
+  profile_interval = 1000
+
+  !! Run-specific inlist
+  read_extra_controls_inlist2 = .true.
+  extra_controls_inlist2_name = 'inlist_folder/inlist2_accrete_Fe'
+
+/ ! end of controls namelist

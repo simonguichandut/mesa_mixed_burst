@@ -1,0 +1,116 @@
+! Accrete H,He and C (solar composition) until the base of the envelope
+! (rho>1e5) becomes convective
+
+&star_job    
+
+  load_saved_model = .true.
+  saved_model_name = 'models/ns_env_ignited.mod'
+
+  save_model_when_terminate = .true.
+  save_model_filename = 'models/ns_env_Edd.mod'
+
+  save_pgstar_files_when_terminate = .true.
+
+  write_profile_when_terminate = .true.
+  filename_for_profile_when_terminate = 'final.data'
+
+  set_initial_age = .true.
+  set_initial_model_number = .true.
+
+  show_net_reactions_info = .true.
+  show_timestep_limit_counts_when_terminate = .true.
+
+  ! Why are we turning on v_flag here?? YW do it also in the hydrostatic part, but why?  v_flag=.true. implies hydrodynamics
+  ! Also, new_v_flag is set to .false. in test_suite/ns_he/inlist_to_flash
+  ! change_v_flag is probably not necessary here, it applies new_v_flag when doing ./re (change_initial only applies it to the first model when ./rn), but v_flag is already .true.
+  ! https://lists.mesastar.org/pipermail/mesa-users/2019-June/010236.html 
+
+  ! Uncomment for hydrodynamics
+  change_v_flag = .true. 
+  change_initial_v_flag = .true. 
+  new_v_flag = .true.
+
+  pgstar_flag = .true.
+
+/ ! end of star_job namelist
+
+&controls      
+
+  ! Stop when L/LEdd=x_ctrl(2) (at surface)
+  x_logical_ctrl(2) = .true.
+  x_ctrl(2) = 1.0
+
+  ! Accrete solar mixture (X=0.7, Y=0.27, Z=0.02, where Z is just C12 to get into CNO)
+  mass_change = 3d-10! Msun/year (directory name)
+  accrete_same_as_surface = .false. 
+  accrete_given_mass_fractions = .true. 
+  num_accretion_species = 3
+  accretion_species_xa(1) = 0.7
+  accretion_species_id(1) = 'h1'
+  accretion_species_xa(2) = 0.28
+  accretion_species_id(2) = 'he4'
+  accretion_species_xa(3) = 0.02
+  accretion_species_id(3) = 'c12'
+
+  ! Atmosphere
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  !atm_T_tau_opacity = 'iterated'
+  atm_T_tau_opacity = 'fixed'
+  Pextra_factor = 2
+
+  ! Convection and mixing
+  mixing_length_alpha = 1.5
+  MLT_option = 'Henyey'
+  use_Ledoux_criterion = .true.  
+  alpha_semiconvection = 0.1
+  thermohaline_coeff = 2
+  thermohaline_option = 'Kippenhahn'
+
+  ! Energy conservation
+  use_gold_tolerances = .false.  ! default true
+  use_gold2_tolerances = .false. ! default true
+  convergence_ignore_equL_residuals = .true. ! default false
+
+  ! Resolution
+  varcontrol_target = 1d-3 ! default 1d-3
+  mesh_delta_coeff = 0.5 ! default 1d0
+  time_delta_coeff = 1d0 ! default 1d0
+
+  min_timestep_limit = 1d-20
+  
+
+  terminal_show_age_units = 'seconds'
+
+  photo_interval = 500
+  profile_interval = 20
+  ! profile_interval = 5
+  history_interval = 20
+  terminal_interval = 10
+  write_header_frequency = 50
+  max_num_profile_models = 500
+  
+  !------------------
+
+  delta_lgL_nuc_limit = 0.01  ! default none
+  ! delta_lgL_nuc_limit = 0.001  ! default none
+  delta_lgL_nuc_hard_limit = 0.15 ! default none
+  lgL_nuc_burn_min = -2d0 ! default 0.5d0
+
+  ! always_use_dedt_form_of_energy_eqn = .false. ! default true
+  ! always_use_eps_grav_form_of_energy_eqn = .true. ! default false
+  ! max_abs_rel_run_E_err = 1d99 ! default 0.01d0
+
+  ! max_abar_for_burning = 55 ! default 199
+
+  merge_if_dlnR_too_small = .true. ! default false
+  mesh_min_dlnR = 5d-9 ! default 1d-9
+
+  ! limit_for_rel_error_in_energy_conservation = 1d-4 ! default 1d-6
+  ! hard_limit_for_rel_error_in_energy_conservation = 1d-3 ! default 1d-4
+  ! warning_limit_for_max_residual = 1d99 ! default 1d0
+
+  ! tol_correction_norm = 3d-5 ! default 3d-5
+  ! tol_max_correction = 6d-3 ! default 3d-3
+
+/ ! end of controls namelist

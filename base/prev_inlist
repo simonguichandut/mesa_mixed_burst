@@ -1,0 +1,38 @@
+#!/bin/bash
+#changing which extra inlist (for star_job and controls) is read to the previous one
+#only star_job and controls inlists
+file="inlist"
+temp_file="inlist.temp" 
+counter=0
+locs=()
+IFS=''
+
+while read line; do
+    if [[ "$line" == *" extra_star"* ]] || [[ "$line" == *" extra_controls"* ]]; then
+        locs+=( $counter )
+    fi
+    let counter+=1
+done < $file
+
+#https://stackoverflow.com/a/8574392
+containsElement () {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+counter=0
+while read line; do
+    if containsElement "$counter" "${locs[@]}"; then 
+        echo "    !"${line:4}
+    elif containsElement "$(expr $counter + 1)" "${locs[@]}"; then 
+        echo "    "${line:5}
+    else
+        echo $line
+    fi
+    let counter+=1
+done < $file > $temp_file
+
+#diff $file $temp_file
+mv $temp_file $file

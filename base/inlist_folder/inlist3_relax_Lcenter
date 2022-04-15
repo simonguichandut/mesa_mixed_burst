@@ -1,0 +1,36 @@
+! Relax to new luminosity 
+
+&star_job    
+
+  saved_model_name = 'models/ns_env_56Fe.mod' 
+  save_model_filename = 'models/ns_env_relaxed.mod'
+
+  !! Set model luminosity
+  relax_L_center = .true.
+  !$ new_L_center = 1.9e34 ! erg/s
+  dlgL_per_step = 1d-2
+
+  !! Run-specific inlist
+  read_extra_star_job_inlist2 = .true.
+  extra_star_job_inlist2_name = 'inlist_folder/inlist3_relax_Lcenter'
+
+/ ! end of star_job namelist
+
+&controls      
+
+  !! After new luminosity is set
+  max_model_number = 100 ! relax (cool down) for 100 models
+
+  !! Resolution
+  mesh_delta_coeff = 1.0 ! default 1.0
+  time_delta_coeff = 1d0 ! default 1d0
+
+  !! Files
+  photo_interval = 1000
+  profile_interval = 1000
+
+  !! Run-specific inlist
+  read_extra_controls_inlist2 = .true.
+  extra_controls_inlist2_name = 'inlist_folder/inlist3_relax_Lcenter'
+
+/ ! end of controls namelist
