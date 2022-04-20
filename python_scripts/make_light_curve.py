@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib.animation import FuncAnimation,FFMpegWriter
-import sys
-from os import listdir
-from os.path import isfile, join
 import py_mesa_reader as mr
+import argparse
 
 yr = 3.1536e7
 Lsun = 3.85e33
@@ -13,7 +11,7 @@ kB = 1.380658e-16
 c = 2.99792458e10
 mp = 1.67e-24
 
-def make_lightcurve(log_dirs,fig_filename=None):
+def make_lightcurve(log_dirs,fig_filename):
 
     fig,ax = plt.subplots(1,1,figsize=(5,4))
     ax.set_xlabel('t (s)')
@@ -34,11 +32,14 @@ def make_lightcurve(log_dirs,fig_filename=None):
         index = mr.MesaProfileIndex(log_dir+"profiles.index")
         num_profiles = len(index.profile_numbers)
         filename = lambda n: log_dir+"profile%d.data"%n
-        print(f"Making light curve using {num_profiles} log files in {log_dir}")
+        if not args.quiet:
+            print(f"Making light curve using {num_profiles} log files in {log_dir}")
 
         t,Louter,Lphot,LEdd = [],[],[],[]
         for i, prof_number in enumerate(index.profile_numbers):
-            print(i,end='\r')
+            
+            if not args.quiet:
+                print(i,end='\r')
             
             data = mr.MesaData(filename(prof_number))
             t.append(data.star_age*yr)  
@@ -77,19 +78,24 @@ def make_lightcurve(log_dirs,fig_filename=None):
     # ax.text(64,LEdd_solar/1e38,r'$L_{\rm Edd,solar}(X=0.7)$',ha='right',va='bottom')
     # ax.text(64,LEdd_He/1e38,r'$L_{\rm Edd,He}(X=0)$',ha='right',va='bottom')
 
-    if fig_filename is None:
-        plt.show()
-    else:
-        fig.savefig(fig_filename, bbox_inches='tight')
-        print("\nSaved to ",fig_filename)
+    fig.savefig(fig_filename, bbox_inches='tight')
+    print("\nSaved to ",fig_filename)
+    
+
+# Command line call
+parser = argparse.ArgumentParser(description="Make a lightcurve")
+parser.add_argument('-L','--logdirs', type=str, nargs='+', help="Directories containing profiles")
+parser.add_argument('-F','--filename', type=str, help="Filename to save to")
+parser.add_argument('-q', '--quiet', action='store_true', help="Don't print stuff")
 
 if __name__ == "__main__":
-    if len(sys.argv):
-        if 'png' in sys.argv[-1] or 'pdf' in sys.argv[-1]: # filename given
-            logdirs = sys.argv[1:-1]
-            filename = sys.argv[-1]
-        else:
-            logdirs = sys.argv[1:]
-            filename = None
+    # if len(sys.argv):
+    #     if 'png' in sys.argv[-1] or 'pdf' in sys.argv[-1]: # filename given
+    #         logdirs = sys.argv[1:-1]
+    #         filename = sys.argv[-1]
+    #     else:
+    #         logdirs = sys.argv[1:]
+    #         filename = None
 
-        make_lightcurve(logdirs, filename) 
+    args = parser.parse_args()
+    make_lightcurve(args.logdirs, args.filename) 

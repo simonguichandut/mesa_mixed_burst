@@ -1,6 +1,0 @@
-#!/bin/bash
-rm png/*.png
-rm LOGS/history.data
-rm LOGS/pgstar.dat
-rm LOGS/profile*
-rm photos/*
