@@ -1,23 +1,21 @@
 #!/bin/bash
-#SBATCH -t 5:00:00
-#!!SBATCH -t 01:00:00
+#SBATCH -t 0:30:00
 #SBATCH --account=def-cumming
-#!!!SBATCH --mem-per-cpu=4G
-#!!!SBATCH --ntasks=8
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
 #SBATCH --mem=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
 
-
 # Directory for run
 RUN_DIR=B2
-# array..
 
-# Which inlist to start with (give number)
+# Which inlist to restart
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=6
+WHICH=5
+
+# Photo to restart from (path from run directory)
+PHOTO=photos/5_flash/2000
 
 #--------------------------------------------------------------------------------------------------
 
@@ -83,37 +81,30 @@ run_one () {
 }
 
 # CD to folder
-# cd $RUNS/$PBS_ARRAYID  # for a multiple-run setup
 cd $RUNS/$RUN_DIR
-
 mkdir -p terminal_outputs
 mkdir -p movies
-rm -f restart_photo
 cp $BASE/base_inlist ./inlist
 k_method=`cat k_to_remove_method`
+
+# Create restart photo
+cp $PHOTO restart_photo # /star will recognize this filename
 
 echo "*********** START ***********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 
 n=1
 for inlist in ${inlists[@]}; do
-    if [ $n -eq 8 ] ; then
-        python $PYTHON/find_k_to_remove.py -m $k_method
-    fi
-    if [ "$START" -le $n ] ; then
-        run_one $inlist
+    if [ $n -eq  $WHICH ] ; then
+        inlist_to_re=$inlist
+        break
     fi
     $BASE/next_inlist
     n=$(($n+1))
 done
 
-python $PYTHON/make_light_curve.py -q -L LOGS/5_flash/ LOGS/7_wind LOGS/8_fallback/ -F ./lightcurve.pdf
-
-blank_lines
-
-python $PYTHON/make_movies.py LOGS/4_accrete/ movies/nucmovie_4_accrete.mp4
-python $PYTHON/make_movies.py LOGS/5_flash/ movies/nucmovie_5_flash.mp4
-python $PYTHON/make_movies.py LOGS/7_wind/ movies/nucmovie_7_wind.mp4
+run_one $inlist_to_re
+rm restart_photo
 
 # Clean-up
 #! clean up memory (remove most [all?] profiles in LOGS/) somehow

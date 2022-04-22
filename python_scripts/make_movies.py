@@ -220,13 +220,13 @@ def make_nuc_movie(log_dir,movie_filename):
         data = mr.MesaData(filename(frame))
         time = (data.star_age-t0)*yr
         if time < 60:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time:.1e} s --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time:.3e} s --- dt = {data.time_step*yr:.1e} s")
         elif time < 3600:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/3600:.1e} h --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/3600:.3e} h --- dt = {data.time_step*yr:.1e} s")
         elif time < day:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/day:.1e} days --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/day:.3e} days --- dt = {data.time_step*yr:.1e} s")
         else:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/yr:.1e} years --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/yr:.3e} years --- dt = {data.time_step*yr:.1e} s")
 
         column = data.column_depth
         T = data.T 

@@ -35,34 +35,34 @@
     
     !! Base inlists
     read_extra_controls_inlist1 = .true.
-    extra_controls_inlist1_name = 'inlist_folder/inlist1_relax_R'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist2_accrete_Fe'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist3_relax_Lcenter'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist4_accrete'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist5_flash'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist6_relax_tau'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist7_wind'
-    !extra_controls_inlist1_name = 'inlist_folder/inlist8_fallback'
+    extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist1_relax_R'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist2_accrete_Fe'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist3_relax_Lcenter'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist4_accrete'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist5_flash'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist6_relax_tau'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist7_wind'
+    !extra_controls_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist8_fallback'
     
 / ! end of controls namelist 
     
 &pgstar
     
     read_extra_pgstar_inlist1 = .true.
-    extra_pgstar_inlist1_name = 'inlist_folder/inlist_pgstar'
+    extra_pgstar_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist_pgstar'
     
 / ! end of pgstar namelist
     
 &eos
     
     read_extra_eos_inlist1 = .true.
-    extra_eos_inlist1_name = 'inlist_folder/inlist_eos_and_kap'
+    extra_eos_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist_eos_and_kap'
     
 / ! end of eos namelist
     
 &kap
     
     read_extra_kap_inlist1 = .true.
-    extra_kap_inlist1_name = 'inlist_folder/inlist_eos_and_kap'
+    extra_kap_inlist1_name = '/home/ximun/mixed_burst/base/inlist_folder/inlist_eos_and_kap'
     
 / ! end of kap namelist

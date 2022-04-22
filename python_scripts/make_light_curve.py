@@ -28,42 +28,44 @@ def make_lightcurve(log_dirs,fig_filename):
 
     for k,log_dir in enumerate(log_dirs):
 
-        if log_dir[-1]!='/': log_dir += '/' 
-        index = mr.MesaProfileIndex(log_dir+"profiles.index")
-        num_profiles = len(index.profile_numbers)
-        filename = lambda n: log_dir+"profile%d.data"%n
-        if not args.quiet:
-            print(f"Making light curve using {num_profiles} log files in {log_dir}")
+        try:
 
-        t,Louter,Lphot,LEdd = [],[],[],[]
-        for i, prof_number in enumerate(index.profile_numbers):
-            
+            if log_dir[-1]!='/': log_dir += '/' 
+            index = mr.MesaProfileIndex(log_dir+"profiles.index")
+            num_profiles = len(index.profile_numbers)
+            filename = lambda n: log_dir+"profile%d.data"%n
             if not args.quiet:
-                print(i,end='\r')
-            
-            data = mr.MesaData(filename(prof_number))
-            t.append(data.star_age*yr)  
-            Louter.append(data.luminosity[0]*Lsun) 
+                print(f"Making light curve using {num_profiles} log files in {log_dir}")
 
-            iphot = np.argmin(np.abs(data.tau - 1))
-            Lphot.append(data.luminosity[iphot]*Lsun)
+            t,Louter,Lphot,LEdd = [],[],[],[]
+            for i, prof_number in enumerate(index.profile_numbers):
+                
+                if not args.quiet:
+                    print(i,end='\r')
+                
+                data = mr.MesaData(filename(prof_number))
+                t.append(data.star_age*yr)  
+                Louter.append(data.luminosity[0]*Lsun) 
 
-            LEdd.append(LEdd_He*0.2/data.opacity[iphot])
+                iphot = np.argmin(np.abs(data.tau - 1))
+                Lphot.append(data.luminosity[iphot]*Lsun)
 
-        t,Louter,Lphot,LEdd = np.array((t,Louter,Lphot,LEdd))
-        t += t0
-        ax.axvline(t0, ls=':', lw=0.7)
+                LEdd.append(LEdd_He*0.2/data.opacity[iphot])
 
-        if k==0:
-            ax.plot(t,Lphot/1e38,'k.-',ms=2.5,label='L(tau=1)')
-            ax.plot(t,Louter/1e38,'r-',ms=2.5,label='L(r=rmax)')
-            ax.plot(t,LEdd/1e38,'b-',label='Ledd',lw=0.6)
-        else:
-            ax.plot(t,Lphot/1e38,'k.-',ms=2.5)
-            ax.plot(t,Louter/1e38,'r-',ms=2.5)
-            ax.plot(t,LEdd/1e38,'b-',lw=0.6)
+            t,Louter,Lphot,LEdd = np.array((t,Louter,Lphot,LEdd))
+            t += t0
+            ax.axvline(t0, ls=':', lw=0.7)
 
-        t0 = t[-1]
+            if k==0:
+                ax.plot(t,Lphot/1e38,'k.-',ms=2.5,label='L(tau=1)')
+                ax.plot(t,Louter/1e38,'r-',ms=2.5,label='L(r=rmax)')
+                ax.plot(t,LEdd/1e38,'b-',label='Ledd',lw=0.6)
+            else:
+                ax.plot(t,Lphot/1e38,'k.-',ms=2.5)
+                ax.plot(t,Louter/1e38,'r-',ms=2.5)
+                ax.plot(t,LEdd/1e38,'b-',lw=0.6)
+
+            t0 = t[-1]
 
         
     ax.legend(loc=1,framealpha=0.5)
