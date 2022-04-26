@@ -766,7 +766,10 @@ class MesaProfileIndex:
             dtype=None)
         self.model_number_string = MesaProfileIndex.index_names[0]
         self.profile_number_string = MesaProfileIndex.index_names[-1]
-        self.index_data = temp_index_data[np.argsort(temp_index_data[:, 0])]
+        if temp_index_data.ndim > 1:
+            self.index_data = temp_index_data[np.argsort(temp_index_data[:, 0])]
+        else:
+            self.index_data = temp_index_data
         self.index_data = dict(zip(MesaProfileIndex.index_names,
                                    temp_index_data.T))
         self.profile_numbers = self.data(self.profile_number_string)

@@ -4,6 +4,7 @@ runs/**/*.*
 runs/**/x*
 runs/**/*000
 !runs/**/*.pdf
+!runs/**/*.pickle
 !runs/**/inlist_folder/inlist*
 !runs/**/movies/*.mp4
 !runs/**/models/*.mod
