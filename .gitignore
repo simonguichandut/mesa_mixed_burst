@@ -26,6 +26,7 @@ runs/**/*000
 !python_scripts/*.py
 
 # other
+python_scripts/__pycache__/
 *.code-workspace
 slurm*
 *temp*
