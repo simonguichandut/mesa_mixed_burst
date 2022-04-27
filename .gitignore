@@ -23,6 +23,7 @@ runs/**/*000
 
 # python files not in dedicated scripts file are local only
 *.py
+!python_scripts/*.py
 
 # other
 *.code-workspace
