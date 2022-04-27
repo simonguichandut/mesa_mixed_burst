@@ -1,23 +1,27 @@
 #!/bin/bash
-#SBATCH -t 5:00:00
+#SBATCH -t 8:00:00
 #!!SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
-#!!!SBATCH --mem-per-cpu=4G
-#!!!SBATCH --ntasks=8
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
 #SBATCH --mem=4G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
+##SBATCH --array=1,2
 
 
-# Directory for run
-RUN_DIR=B2
-# array..
+# Single run
+RUN_DIR=C1
+
+# Parallel run
+# --array option needs to be turned on. Numbers refer to the line number in the file 
+# containing the names of the directories to run
+# dir_list_file=dir_list_temp
+# RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=6
+START=4
 
 #--------------------------------------------------------------------------------------------------
 
@@ -74,7 +78,7 @@ run_one () {
         images_to_movie "png/*.png" movies/pgstar_$1.mp4
     fi
 
-    if filetype_exists photos/x* || filetype_exists photos/*000 ; then 
+    if filetype_exists photos/*000 ; then 
         save_photos $1
     fi 
 

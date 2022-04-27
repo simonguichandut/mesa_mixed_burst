@@ -5,9 +5,7 @@
       model_number ! counting from the start of the run
       star_age ! elapsed simulated time in years since the start of the run
       star_mass ! in Msun units
-      !star_mdot ! d(star_mass)/dt (in msolar per year)
       log_abs_mdot ! log10(abs(star_mdot)) (in msolar per year)
-      !time_step ! timestep in years since previous model
       log_dt ! log10 time_step
       num_zones ! number of zones in the model
    
@@ -29,19 +27,9 @@
       mx2_top
       mx2_bot
       
-      ! radius -- values are radii in Rsun units
-      !conv_mx1_top_r
-      !conv_mx1_bot_r
-      !conv_mx2_top_r
-      !conv_mx2_bot_r
-      !mx1_top_r
-      !mx1_bot_r
-      !mx2_top_r
-      !mx2_bot_r
-      
       ! you might want to get a more complete list of mixing regions by using the following
 
-      mixing_regions 20
+      !mixing_regions 20
       
       !mixing_regions <integer> ! note: this includes regions where the mixing type is no_mixing.
          ! the <integer> is the number of regions to report
@@ -84,7 +72,7 @@
 
       ! you might want to get a more complete list of burning regions by using the following
 
-      burning_regions 20
+      !burning_regions 20
       
       !burning_regions <integer>
          ! the <integer> is the number of regions to report
@@ -103,138 +91,23 @@
          ! if the star has too many regions to report them all,
          ! the smallest regions will be merged with neighbors for reporting purposes only.
        
-   ! information about abundance transitions
-   
-      he_core_mass
-      c_core_mass
-      o_core_mass   
-      si_core_mass
-      fe_core_mass
-
-
-      envelope_mass ! = star_mass - h1_boundary_mass
-      envelope_fraction_left ! = envelope_mass / (initial_mass - h1_boundary_mass)
-   
-   ! info about locations where optical depth is 10 or 100
-
-      !tau10_mass ! mass in solar units where optical depth = 10
-      !tau10_radius ! radius in solar units where optical depth = 10
-      !tau10_lgP ! estimate for log10(P) at tau = 10
-      !tau10_lgT ! estimate for log10(T) at tau = 10
-      !tau10_lgRho ! estimate for log10(density) at tau = 10
-      !tau10_L ! estimate for L/Lsun at tau = 10
-      
-      !tau100_mass ! location in solar units where optical depth = 100
-      !tau100_radius ! location in solar units where optical depth = 100
-      !tau100_lgP ! estimates for values at tau = 100
-      !tau100_lgT
-      !tau100_lgRho
-      !tau100_L
-
-   ! timescales
-      
-      !dynamic_timescale ! dynamic timescale (seconds) -- estimated by 2*pi*sqrt(r^3/(G*m))
-      !kh_timescale ! kelvin-helmholtz timescale (years)
-      !nuc_timescale ! nuclear timescale (years) -- proportional to mass divided by luminosity
-
-   ! integrated power from hydrogen and helium burning
-   
-      !power_h_burn ! total thermal power from PP and CNO, excluding neutrinos (in Lsun units)
-      !power_he_burn ! total thermal power from triple-alpha, excluding neutrinos (in Lsun units)
-      log_LH ! log10 power_h_burn
-      log_LHe ! log10 power_he_burn
-   
    ! conditions near surface
    
       log_L ! log10 luminosity in Lsun units
       log_Lneu ! log10 neutrino luminosity in Lsun units
       log_Teff ! log10 effective temperature
       log_R ! log10 radius in Rsun units
-      log_g ! log10 gravity
-      !log_L_div_Ledd ! log10(L/Leddington)
-   
-   ! conditions near center
-   
-      log_center_T ! temperature
-      log_center_Rho ! density
-      log_center_P ! pressure
-      center_degeneracy ! the electron chemical potential in units of k*T
-      !center_gamma ! plasma interaction parameter
-      center_ye
+      log_L_div_Ledd ! log10(L/Leddington)
       
-   ! mass fractions near center
-      
-      center h1
-      center he4
-      center c12
-      center o16
-      ! etc. -- do as many of these 'center' commands as desired
-      
-   ! mass fractions near surface
-   
-      !surface h1
-      !surface he4
-      surface c12
-      surface o16
-      ! etc.
-      
-   ! mass fractions for entire star
-      
-      !average h1
-      !average he4
-      ! etc.
-      
-   ! mass totals for entire star (in Msun units)
-      
-      !total_mass h1
-      !total_mass he4
-      ! etc.
-      
-   ! log10 mass totals for entire star (in Msun units)
-      
-      !log_total_mass h1
-      log_total_mass he4
-      ! etc.
-      
-   ! log10 mass fractions for entire star
-      
-      !log_average h1
-      !log_average he4
-      ! etc.
-      
-   ! log10 central mass fractions
-      
-      !log_center h1
-      !log_center he4
-      ! etc.
-
    ! log10 total ergs/sec for reaction categories (Lsun units)
       
-      !pp
-      !cno
-      !tri_alfa
-      !burn_c
-      !burn_n
-      !burn_o
+      pp
+      cno
+      tri_alfa
 
-   ! log10 total ergs/sec for specific reactions (names from rates_def; Lsun units)
       
-      !rpp
-
-   
    ! misc
    
       v_div_csound_surf ! velocity divided by sound speed at outermost grid point
-      !surface_accel_div_grav ! (v - v_old)/dt divided by GM/R^2 at outermost grid point
       num_retries ! total during the run
-      
-      !burn_nfcn_total ! only non-zero for burn_split
-      !burn_nstep_max ! only non-zero for burn_split
-      !lg_nfcn_per_sec ! log10(burn_nfcn_total/dt)
-      
-      !max_conv_vel_div_csound
-      
-      h1_czb_mass ! location (in Msun units) of base of 1st convection zone above h1_boundary_mass
-      
-      !surf_c12_minus_o16 ! this is useful for seeing effects of dredge up on AGB
-      !surf_num_c12_div_num_o16 ! ratio of number fractions.  > 1 for "carbon star".
+      max_conv_vel_div_csound

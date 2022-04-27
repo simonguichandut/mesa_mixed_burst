@@ -14,3 +14,4 @@ runs/**/*000
 *.code-workspace
 RUN
 slurm*
+*temp*

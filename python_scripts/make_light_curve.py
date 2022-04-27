@@ -62,12 +62,12 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
             ax.axvline(t0, ls=':', lw=0.7)
 
             if k==0:
-                ax.plot(t,Lphot/1e38,'k.-',ms=2.5,label='L(tau=1)')
-                ax.plot(t,Louter/1e38,'r-',ms=2.5,label='L(r=rmax)')
+                ax.plot(t,Lphot/1e38,'k.-',ms=2.5,lw=0.6,label='L(tau=1)')
+                ax.plot(t,Louter/1e38,'r-',ms=2.5,lw=0.6,label='L(r=rmax)')
                 ax.plot(t,LEdd/1e38,'b-',label='Ledd',lw=0.6)
             else:
-                ax.plot(t,Lphot/1e38,'k.-',ms=2.5)
-                ax.plot(t,Louter/1e38,'r-',ms=2.5)
+                ax.plot(t,Lphot/1e38,'k.-',ms=2.5,lw=0.6)
+                ax.plot(t,Louter/1e38,'r-',ms=2.5,lw=0.6)
                 ax.plot(t,LEdd/1e38,'b-',lw=0.6)
 
             t0 = t[-1]

@@ -27,7 +27,7 @@
 &controls
 
     !! Common
-    history_interval = 100
+    history_interval = 10
     terminal_interval = 10
     write_header_frequency = 100
     priority_profile_interval = 100
