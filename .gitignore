@@ -1,3 +1,14 @@
+# Base folder: remove binaries (should be compiled for given machine
+base/star
+base/src/*.o
+base/make/*.o
+base/src/*.mod
+base/make/*.mod
+base/src/*.smod
+base/make/*.smod
+
+# base_inlist should be modified (from template) for local path
+base/base_inlist
 
 # Run folder: whitelist lightcurves, inlists, movies, models, outputs
 runs/**/*.*
@@ -10,8 +21,11 @@ runs/**/*000
 !runs/**/models/*.mod
 !runs/**/terminal_outputs/*.txt
 
+# python files not in dedicated scripts file are local only
+*.py
+
 # other
 *.code-workspace
-RUN
 slurm*
 *temp*
+
