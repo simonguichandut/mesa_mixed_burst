@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 8:00:00
+#SBATCH -t 2:00:00
 #!!SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
@@ -16,12 +16,12 @@ RUN_DIR=C1
 # Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-# dir_list_file=dir_list_temp
-# RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+#dir_list_file=dir_list_temp
+#RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=4
+START=7
 
 #--------------------------------------------------------------------------------------------------
 
@@ -87,7 +87,6 @@ run_one () {
 }
 
 # CD to folder
-# cd $RUNS/$PBS_ARRAYID  # for a multiple-run setup
 cd $RUNS/$RUN_DIR
 
 mkdir -p terminal_outputs
