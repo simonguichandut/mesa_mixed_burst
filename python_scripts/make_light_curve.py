@@ -26,6 +26,7 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
     ax.axhline(LEdd_H/1e38, ls='--', color='k', lw=0.7)
 
     t0 = 0
+    t0b = 0
 
     for k,log_dir in enumerate(log_dirs):
         if log_dir[-1]!='/': log_dir += '/' 
@@ -79,7 +80,10 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
         # Plot luminosity from history files
         try:
             hist = mr.MesaData(log_dir+"history.data")        
-            ax.plot(hist.star_age*yr, hist.L*Lsun, 'm-', lw=0.4)
+            t = hist.star_age*yr + t0b
+            L = hist.L*Lsun
+            ax.plot(t, L/1e38, 'm-', lw=0.4)
+            t0b = t[-1]
 
         except Exception as e:
             print("Could not load history for ", log_dir)
