@@ -28,10 +28,9 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
     t0 = 0
 
     for k,log_dir in enumerate(log_dirs):
-
+        if log_dir[-1]!='/': log_dir += '/' 
+       
         try:
-
-            if log_dir[-1]!='/': log_dir += '/' 
             index = mr.MesaProfileIndex(log_dir+"profiles.index")
 
             if index.profile_numbers.ndim==0: # only 1 profile, needs reformating
@@ -75,6 +74,18 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
         except Exception as e:
             print("Could not load profiles for ", log_dir)
             print(e)
+
+    
+        # Plot luminosity from history files
+        try:
+            hist = mr.MesaData(log_dir+"history.data")        
+            ax.plot(hist.star_age*yr, hist.L*Lsun, 'm-', lw=0.4)
+
+        except Exception as e:
+            print("Could not load history for ", log_dir)
+            print(e) 
+
+
 
         
     ax.legend(loc=1,framealpha=0.5)

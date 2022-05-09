@@ -1,7 +1,6 @@
 from compare_models import *
 from matplotlib.animation import FuncAnimation,FFMpegWriter
-from os import listdir
-from os.path import isfile, join
+import os
 
 yr = 3.1536e7
 Lsun = 3.85e33
@@ -236,4 +235,7 @@ def make_nuc_movie(log_dir,movie_filename):
 if __name__ == "__main__":
     if len(sys.argv):
         logdir, movie_filename = sys.argv[1:]
-        make_nuc_movie(logdir, movie_filename) 
+        if os.path.exists(logdir):
+            make_nuc_movie(logdir, movie_filename) 
+        else:
+            print("Log dir %s does not exist"%logdir)

@@ -156,7 +156,9 @@
             allocate(Lrad(s%nz))
             Lrad = s%L - s%L_conv
 
-            LEdd = 4*pi*standard_cgrav*Msun*1.4*clight/s% opacity(1) 
+            !LEdd = 4*pi*standard_cgrav*Msun*1.4*clight/s% opacity(1) 
+            ! LEdd = pi4 * clight * s%cgrav(1) * s%m_grav(1) / s%opacity(1) ! ~same as line above, cgrav=G unless GR factors on, m_grav is mass_enclosed, might be slightly larger than 1.4
+            LEdd = pi4 * clight * s%cgrav(1) * s%m_grav(1) / (0.2 * (1 + s%X(1)))
             Lmax = s%x_ctrl(2)*LEdd
 
             L_rel_err = (Lrad(1) - Lmax)/Lmax
