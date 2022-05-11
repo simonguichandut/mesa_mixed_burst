@@ -49,7 +49,8 @@ def stepsize_drop():
     for ddri in ddr:
         if ddri<-10:                    # arbitrary value found by graphing
             break
-    return list(ddr).index(ddri) + 10  # bit deeper in to be safe
+    #return list(ddr).index(ddri) + 10  # bit deeper in to be safe
+    return list(ddr).index(ddri) + 25  # D1 didn't work with +10 but does with +20! Not going deep enough somehow breaks things. Finds L<0, then many retries, then L and Teff both have dropped a lot. Probably something in the atm calculation..
 
 def other_method():
     pass

@@ -1,17 +1,18 @@
 #!/bin/bash
-#SBATCH -t 6:00:00
+#SBATCH -t 8:00:00
 #!!SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-#SBATCH --mem=4G
+##SBATCH --mem=4G
+#SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
 ##SBATCH --array=1,2
 
 
 # Single run
-RUN_DIR=D1
+RUN_DIR=E1
 
 # Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
@@ -21,7 +22,7 @@ RUN_DIR=D1
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=5
+START=4
 
 #--------------------------------------------------------------------------------------------------
 

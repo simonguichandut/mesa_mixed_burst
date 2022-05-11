@@ -351,16 +351,19 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 0
+         how_many_extra_history_columns = 1
       end function how_many_extra_history_columns
       
       
       subroutine data_for_extra_history_columns(id, n, names, vals, ierr)
+         use num_lib, only: binary_search
          integer, intent(in) :: id, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
+         integer :: k
+         real(dp) :: check,frac,tau00,taup1,v00,vp1
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
@@ -368,6 +371,34 @@
          ! note: do NOT add the extras names to history_columns.list
          ! the history_columns.list is only for the built-in history column options.
          ! it must not include the new column names you are adding here.
+
+         names(1) = "luminosity_tau1"
+
+         ! Following star/private/report.f90 check_tau()
+         check = 1d0 ! optical depth to look for
+         k = binary_search(s%nz, s%tau, 0, check)
+         if (k < 1 .or. k > s%nz-2) then
+
+            ! Return -1 if can't find tau=1
+            vals(1) = -1
+
+         else
+
+            tau00 = s% tau(k)
+            taup1 = s% tau(k+1)
+            ! tau00 <= check < taup1
+            frac = (check - tau00)/(taup1 - tau00)
+
+            if (frac > 1 .or. frac < 0) then
+               vals(1) = -1
+
+            else
+               v00 = (s% L(k+1) + s% L(k))/2
+               vp1 = (s% L(k+2) + s% L(k+1))/2
+               vals(1) = (v00 + (vp1 - v00)*frac)/Lsun
+            end if
+
+         end if
          
 
       end subroutine data_for_extra_history_columns

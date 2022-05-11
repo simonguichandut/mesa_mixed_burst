@@ -69,7 +69,7 @@
 
   !! Files
   photo_interval = 100
-  profile_interval = 5
+  profile_interval = 10
 
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
