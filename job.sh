@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 8:00:00
+#SBATCH -t 10:00:00
 #!!SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
@@ -8,17 +8,18 @@
 #SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-##SBATCH --array=1,2
+#SBATCH --array=1,2
 
 
 # Single run
-RUN_DIR=E1
+#RUN_DIR=E1
 
 # Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-#dir_list_file=dir_list_temp
-#RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+dir_list_file=runs/dir_list
+RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+echo $RUN_DIR
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
