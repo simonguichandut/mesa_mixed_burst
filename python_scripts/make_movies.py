@@ -297,5 +297,8 @@ def make_nuc_movie(log_dir,movie_filename):
 
 if __name__ == "__main__":
     if len(sys.argv):
-        logdir, movie_filename = sys.argv[1:]
-        make_nuc_movie(logdir, movie_filename) 
+        log_dir, movie_filename = sys.argv[1:]
+        if os.path.exists(log_dir+"profiles.index"):
+            make_nuc_movie(log_dir, movie_filename) 
+        else:
+            print("Index file does not exist for ",log_dir)

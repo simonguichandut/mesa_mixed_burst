@@ -1,5 +1,6 @@
 #!/bin/bash
-#SBATCH -t 0:30:00
+##SBATCH -t 0:30:00
+#SBATCH -t 10:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
@@ -8,14 +9,17 @@
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
 
 # Directory for run
-RUN_DIR=B2
+RUN_DIR=D2
 
 # Which inlist to restart
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-WHICH=5
+RESTART=8
 
 # Photo to restart from (path from run directory)
-PHOTO=photos/5_flash/2000
+PHOTO=photos/7_wind/x500
+
+# Continue to next inlist after (or not)
+CONT=true
 
 #--------------------------------------------------------------------------------------------------
 
@@ -31,6 +35,11 @@ export PYTHON="/home/ximun/mixed_burst/python_scripts"
 export RUNS="/home/ximun/mixed_burst/runs"
 
 # Functions
+
+save_history () {
+    cp LOGS/history.data histories/history_$1.data
+}
+
 save_logs () {
    mkdir -p LOGS/$1
    mv LOGS/{*.dat*,*.index} LOGS/$1
@@ -65,6 +74,7 @@ run_one () {
     time $BASE/star > terminal_outputs/$1.txt
 
     if filetype_exists LOGS/*.data ; then
+        save_history $1
         save_logs $1
     fi
 
@@ -88,27 +98,40 @@ cp $BASE/base_inlist ./inlist
 k_method=`cat k_to_remove_method`
 
 # Create restart photo
-cp $PHOTO restart_photo # /star will recognize this filename
+cp $PHOTO restart_photo # star will recognize this filename
+
+# Change filename for old terminal output file
+old_name=terminal_outputs/${inlists[$RESTART-1]}.txt
+new_name=terminal_outputs/${inlists[$RESTART-1]}_old.txt
+mv $old_name $new_name # won't work for more than 2 restarts
+
 
 echo "*********** START ***********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 
 n=1
 for inlist in ${inlists[@]}; do
-    if [ $n -eq  $WHICH ] ; then
-        inlist_to_re=$inlist
-        break
+    if [ $n -ge  $RESTART ] ; then
+        run_one $inlist
+        rm restart_photo
+        
+        if [ "$CONT" = false ] ; then 
+            break
+        fi
+
     fi
     $BASE/next_inlist
     n=$(($n+1))
 done
 
-run_one $inlist_to_re
-rm restart_photo
-
 # Clean-up
-#! clean up memory (remove most [all?] profiles in LOGS/) somehow
 rm inlist
+# Move files to scratch if run completed succesfully
+if filetype_exists LOGS/8_fallback/*.data ; then # better criteria?
+    mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
+    mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
+    mv photos/* $SCRATCH/$RUN_DIR/photos/
+fi
 
 echo "********** FINISHED *********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

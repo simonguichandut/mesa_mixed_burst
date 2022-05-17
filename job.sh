@@ -1,29 +1,29 @@
 #!/bin/bash
-#SBATCH -t 10:00:00
-#!!SBATCH -t 01:00:00
+##SBATCH -t 10:00:00
+#SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-##SBATCH --mem=4G
-#SBATCH --mem=8G
+#SBATCH --mem=4G
+##SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-#SBATCH --array=1,2
+##SBATCH --array=1,2
 
 
 # Single run
-#RUN_DIR=E1
+RUN_DIR=D2
 
 # Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-dir_list_file=runs/dir_list
-RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
-echo $RUN_DIR
+# dir_list_file=runs/dir_list
+# RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+# echo $RUN_DIR
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=4
+START=8
 
 #--------------------------------------------------------------------------------------------------
 
@@ -37,8 +37,14 @@ export OMP_NUM_THREADS=8
 export BASE="/home/ximun/mixed_burst/base"
 export PYTHON="/home/ximun/mixed_burst/python_scripts"
 export RUNS="/home/ximun/mixed_burst/runs"
+export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
 
 # Functions
+
+save_history () {
+    cp LOGS/history.data histories/history_$1.data
+}
+
 save_logs () {
    mkdir -p LOGS/$1
    mv LOGS/{*.dat*,*.index} LOGS/$1
@@ -73,6 +79,7 @@ run_one () {
     time $BASE/star > terminal_outputs/$1.txt
 
     if filetype_exists LOGS/*.data ; then
+        save_history $1
         save_logs $1
     fi
 
@@ -93,6 +100,7 @@ cd $RUNS/$RUN_DIR
 
 mkdir -p terminal_outputs
 mkdir -p movies
+mkdir -p histories
 rm -f restart_photo
 cp $BASE/base_inlist ./inlist
 k_method=`cat k_to_remove_method`
@@ -105,24 +113,40 @@ for inlist in ${inlists[@]}; do
     if [ $n -eq 8 ] ; then
         python $PYTHON/find_k_to_remove.py -m $k_method
     fi
-    if [ "$START" -le $n ] ; then
+    if [ $n -ge "$START" ] ; then
         run_one $inlist
     fi
     $BASE/next_inlist
     n=$(($n+1))
 done
 
-python $PYTHON/make_light_curve.py -q -L LOGS/5_flash/ LOGS/7_wind LOGS/8_fallback/ -F ./lightcurve.pdf
+# Move logs to scratch space
+mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
+mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
+mv photos/* $SCRATCH/$RUN_DIR/photos/
 
+# Make lightcurve and movies
+LOG_DIR=$SCRATCH/$RUN_DIR/LOGS
+python $PYTHON/make_light_curve.py -q -L $LOG_DIR/5_flash/ $LOG_DIR/7_wind $LOG_DIR/8_fallback/ -F ./lightcurve.pdf
 blank_lines
+python $PYTHON/make_movies.py $LOG_DIR/4_accrete/ movies/nucmovie_4_accrete.mp4
+python $PYTHON/make_movies.py $LOG_DIR/5_flash/ movies/nucmovie_5_flash.mp4
+python $PYTHON/make_movies.py $LOG_DIR/7_wind/ movies/nucmovie_7_wind.mp4
 
-python $PYTHON/make_movies.py LOGS/4_accrete/ movies/nucmovie_4_accrete.mp4
-python $PYTHON/make_movies.py LOGS/5_flash/ movies/nucmovie_5_flash.mp4
-python $PYTHON/make_movies.py LOGS/7_wind/ movies/nucmovie_7_wind.mp4
+# python $PYTHON/make_light_curve.py -q -L LOGS/5_flash/ LOGS/7_wind LOGS/8_fallback/ -F ./lightcurve.pdf
+# blank_lines
+# python $PYTHON/make_movies.py LOGS/4_accrete/ movies/nucmovie_4_accrete.mp4
+# python $PYTHON/make_movies.py LOGS/5_flash/ movies/nucmovie_5_flash.mp4
+# python $PYTHON/make_movies.py LOGS/7_wind/ movies/nucmovie_7_wind.mp4
 
 # Clean-up
-#! clean up memory (remove most [all?] profiles in LOGS/) somehow
 rm inlist
+# # Move files to scratch if run completed succesfully
+# if filetype_exists LOGS/8_fallback/*.data ; then # better criteria?
+#     mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
+#     mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
+#     mv photos/* $SCRATCH/$RUN_DIR/photos/
+# fi
 
 echo "********** FINISHED *********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

@@ -20,6 +20,8 @@ runs/**/*000
 !runs/**/movies/*.mp4
 !runs/**/models/*.mod
 !runs/**/terminal_outputs/*.txt
+!runs/**/histories/*
+!runs/info.md
 
 # python files not in dedicated scripts file are local only
 *.py
