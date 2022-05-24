@@ -23,6 +23,9 @@
   !$ x_ctrl(3) = 1d-15          ! stop when timestep drops below this (years)
   !$ x_ctrl(4) = 1d0            ! but only when star age greater than this (seconds)
 
+  !! Maximum time in case not reaching the condition
+  max_age_in_seconds = 60d0
+
   !! Analytic electron scattering opacity from Paczynski
   use_other_kap = .true.
 

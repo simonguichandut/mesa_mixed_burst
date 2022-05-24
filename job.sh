@@ -1,18 +1,18 @@
 #!/bin/bash
-##SBATCH -t 10:00:00
-#SBATCH -t 01:00:00
+#SBATCH -t 2:00:00
+##SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-#SBATCH --mem=4G
-##SBATCH --mem=8G
+##SBATCH --mem=4G
+#SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
 ##SBATCH --array=1,2
 
 
 # Single run
-RUN_DIR=D2
+RUN_DIR=G1
 
 # Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
@@ -23,7 +23,10 @@ RUN_DIR=D2
 
 # Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=8
+START=5
+
+# Which inlist to stop after (8 to go to the end)
+STOP=5
 
 #--------------------------------------------------------------------------------------------------
 
@@ -37,7 +40,7 @@ export OMP_NUM_THREADS=8
 export BASE="/home/ximun/mixed_burst/base"
 export PYTHON="/home/ximun/mixed_burst/python_scripts"
 export RUNS="/home/ximun/mixed_burst/runs"
-export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
+#export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
 
 # Functions
 
@@ -116,28 +119,29 @@ for inlist in ${inlists[@]}; do
     if [ $n -ge "$START" ] ; then
         run_one $inlist
     fi
+    if [ $n -eq "$STOP" ] ; then
+        break
+    fi
     $BASE/next_inlist
     n=$(($n+1))
 done
 
 # Move logs to scratch space
-mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
-mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
-mv photos/* $SCRATCH/$RUN_DIR/photos/
+#mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
+#mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
+#mv photos/* $SCRATCH/$RUN_DIR/photos/
 
 # Make lightcurve and movies
-LOG_DIR=$SCRATCH/$RUN_DIR/LOGS
-python $PYTHON/make_light_curve.py -q -L $LOG_DIR/5_flash/ $LOG_DIR/7_wind $LOG_DIR/8_fallback/ -F ./lightcurve.pdf
-blank_lines
-python $PYTHON/make_movies.py $LOG_DIR/4_accrete/ movies/nucmovie_4_accrete.mp4
-python $PYTHON/make_movies.py $LOG_DIR/5_flash/ movies/nucmovie_5_flash.mp4
-python $PYTHON/make_movies.py $LOG_DIR/7_wind/ movies/nucmovie_7_wind.mp4
+#LOG_DIR=$SCRATCH/$RUN_DIR/LOGS
+LOG_DIR=LOGS
 
-# python $PYTHON/make_light_curve.py -q -L LOGS/5_flash/ LOGS/7_wind LOGS/8_fallback/ -F ./lightcurve.pdf
-# blank_lines
-# python $PYTHON/make_movies.py LOGS/4_accrete/ movies/nucmovie_4_accrete.mp4
-# python $PYTHON/make_movies.py LOGS/5_flash/ movies/nucmovie_5_flash.mp4
-# python $PYTHON/make_movies.py LOGS/7_wind/ movies/nucmovie_7_wind.mp4
+# Lightcurve and profile movies
+#python $PYTHON/make_light_curve.py -q -L $LOG_DIR/5_flash/ $LOG_DIR/7_wind $LOG_DIR/8_fallback/ -F ./lightcurve.pdf
+#blank_lines
+#python $PYTHON/make_movies.py $LOG_DIR/4_accrete/ movies/nucmovie_4_accrete.mp4
+python $PYTHON/make_movies.py $LOG_DIR/5_flash/ movies/nucmovie_5_flash.mp4
+#python $PYTHON/make_movies.py $LOG_DIR/7_wind/ movies/nucmovie_7_wind.mp4
+
 
 # Clean-up
 rm inlist
@@ -147,6 +151,7 @@ rm inlist
 #     mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
 #     mv photos/* $SCRATCH/$RUN_DIR/photos/
 # fi
+rm -r png
 
 echo "********** FINISHED *********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

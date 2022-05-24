@@ -13,11 +13,12 @@ from scipy.integrate import cumtrapz
 
 ## Load data
 filename = "models/ns_env_ejected.mod"
-try:
-    data = mr.MesaData(filename)
-    print("Loaded mod file ", filename)
-except:
-    print("Could not load mod file ", filename)
+import os
+if not os.path.exists(filename):
+   sys.exit("Could not load mod file " + filename + " (you should be running this from a run dir)")
+
+data = mr.MesaData(filename)
+print("Loaded mod file ", filename) 
 
 r = data.R
 rho = data.d
@@ -44,13 +45,19 @@ def zero_acceleration():
         if ai<0: break
     return list(a).index(ai) + 1
 
-def stepsize_drop():
+def stepsize_drop(threshold=10):
+    # 10 is arbitrary, found by graphing and looking at ddr. Does not actually work all the time for varying grids
+    if type(threshold) == str:
+        threshold = eval(threshold)
+
     ddr = (dr[2:]-dr[:-2])/(r[2:]-r[:-2])
-    for ddri in ddr:
-        if ddri<-10:                    # arbitrary value found by graphing
+    for i,ddri in enumerate(ddr):
+        if ddri<-threshold:
             break
+    if i==len(ddr)-1:
+        print("Did not find a stepsize drop larger than the threshold. Expecting a crash on next list indexing")
     #return list(ddr).index(ddri) + 10  # bit deeper in to be safe
-    return list(ddr).index(ddri) + 25  # D1 didn't work with +10 but does with +20! Not going deep enough somehow breaks things. Finds L<0, then many retries, then L and Teff both have dropped a lot. Probably something in the atm calculation..
+    return i + 25  # D1 didn't work with +10 but does with +20! Not going deep enough somehow breaks things. Finds L<0, then many retries, then L and Teff both have dropped a lot. Probably something in the atm calculation..
 
 def other_method():
     pass
@@ -119,7 +126,14 @@ if __name__ == "__main__":
         k_remove = args.index
     else:
         print("Removing with method: ", args.method)
-        k_remove = methods[args.method]()
+
+        if ":" not in args.method:
+            method = args.method
+            k_remove = methods[method]()
+        else:
+            method, special = args.method.split(":")
+            k_remove = methods[method](special)
+
 
     print(f"Removing at index {k_remove}, r={r[k_remove]/1e5:.5f} km, rho={rho[k_remove]:.3e} g/cm3, y={ycol[k_remove]:.3e} g/cm2")
 
