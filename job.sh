@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 2:00:00
+#SBATCH -t 10:00:00
 ##SBATCH -t 01:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
@@ -8,41 +8,40 @@
 #SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-##SBATCH --array=1,2
+#SBATCH --array=1,2,3,4,5,6
 
 
-# Single run
-RUN_DIR=G1
+## Single run
+#RUN_DIR=I1
 
-# Parallel run
+## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-# dir_list_file=runs/dir_list
-# RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
-# echo $RUN_DIR
+dir_list_file=runs/dir_list
+RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
 
-# Which inlist to start with (give number)
+## Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
 START=5
 
-# Which inlist to stop after (8 to go to the end)
+## Which inlist to stop after (8 to go to the end)
 STOP=5
 
 #--------------------------------------------------------------------------------------------------
 
-# Modules
+## Modules
 module load python/3.10.2
 module load scipy-stack/2022a
 module load ffmpeg
 
-# Variables
+## Variables
 export OMP_NUM_THREADS=8
-export BASE="/home/ximun/mixed_burst/base"
-export PYTHON="/home/ximun/mixed_burst/python_scripts"
-export RUNS="/home/ximun/mixed_burst/runs"
-#export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
+export BASE="/home/ximun/projects/def-cumming/ximun/mixed_burst/base"
+export PYTHON="/home/ximun/projects/def-cumming/ximun/mixed_burst/python_scripts"
+export RUNS="/home/ximun/projects/def-cumming/ximun/mixed_burst/runs"
+export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
 
-# Functions
+## Functions
 
 save_history () {
     cp LOGS/history.data histories/history_$1.data
@@ -98,8 +97,12 @@ run_one () {
     blank_lines
 }
 
-# CD to folder
-cd $RUNS/$RUN_DIR
+# # CD to folder
+# cd $RUNS/$RUN_DIR
+
+# Copy into scratch and go there
+cp -r $RUNS/$RUN_DIR $SCRATCH
+cd $SCRATCH/$RUN_DIR
 
 mkdir -p terminal_outputs
 mkdir -p movies
@@ -110,6 +113,7 @@ k_method=`cat k_to_remove_method`
 
 echo "*********** START ***********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
+echo "Run directory: "$RUN_DIR
 
 n=1
 for inlist in ${inlists[@]}; do
@@ -152,6 +156,7 @@ rm inlist
 #     mv photos/* $SCRATCH/$RUN_DIR/photos/
 # fi
 rm -r png
+rm -r .mesa_temp_cache
 
 echo "********** FINISHED *********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
