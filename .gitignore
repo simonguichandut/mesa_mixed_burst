@@ -28,7 +28,9 @@ runs/**/*000
 !python_scripts/*.py
 
 # other
+**/.DS_Store
 python_scripts/__pycache__/
+python_scripts/*testing.py
 *.code-workspace
 slurm*
 *temp*

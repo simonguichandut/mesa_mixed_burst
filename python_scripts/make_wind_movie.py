@@ -1,10 +1,4 @@
-from compare_models import *
-from matplotlib.animation import FuncAnimation,FFMpegWriter
-from os import listdir
-from os.path import isfile, join
-
-yr = 3.1536e7
-Lsun = 3.85e33
+from utils import *
 
 def make_movie(log_dir,movie_filename):
 

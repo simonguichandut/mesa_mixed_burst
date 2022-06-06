@@ -27,6 +27,10 @@ START=5
 ## Which inlist to stop after (8 to go to the end)
 STOP=5
 
+## Is it a restart?
+RESTART = false
+RESTART_PHOTO = photos/7_wind/x500 # (path from run directory)
+
 #--------------------------------------------------------------------------------------------------
 
 ## Modules
@@ -77,7 +81,7 @@ blank_lines () { yes '' | sed 3q; }
 run_one () {
     echo "********************** RUNNING "$1
 
-    # time echo "coucou"$1 > terminal_outputs/foo.txt
+    # time echo "coucou "$1 > terminal_outputs/foo.txt
     time $BASE/star > terminal_outputs/$1.txt
 
     if filetype_exists LOGS/*.data ; then
@@ -101,7 +105,10 @@ run_one () {
 # cd $RUNS/$RUN_DIR
 
 # Copy into scratch and go there
-cp -r $RUNS/$RUN_DIR $SCRATCH
+# cp -r $RUNS/$RUN_DIR $SCRATCH
+# cd $SCRATCH/$RUN_DIR
+
+# Assuming directory has already been initialized within scratch
 cd $SCRATCH/$RUN_DIR
 
 mkdir -p terminal_outputs
@@ -110,6 +117,22 @@ mkdir -p histories
 rm -f restart_photo
 cp $BASE/base_inlist ./inlist
 k_method=`cat k_to_remove_method`
+
+# For restart from photo
+if [ "$RESTART" = true ] ; then
+    cp $RESTART_PHOTO restart_photo # star will recognize this filename
+
+    # Change previous filenames
+    # won't work for more than 2 restarts
+    old_name=terminal_outputs/${inlists[$START-1]}.txt
+    new_name=terminal_outputs/${inlists[$START-1]}_old.txt
+    mv $old_name $new_name 
+
+    old_name=movies/pgstar_${inlists[$START-1]}.mp4
+    new_name=movies/pgstar_${inlists[$START-1]}_old.mp4
+    mv $old_name $new_name 
+
+fi
 
 echo "*********** START ***********"
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

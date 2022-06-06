@@ -1,16 +1,4 @@
-import numpy as np
-import matplotlib.pyplot as plt 
-from matplotlib.animation import FuncAnimation,FFMpegWriter
-import py_mesa_reader as mr
-import argparse
-import pickle
-
-yr = 3.1536e7
-Lsun = 3.85e33
-G = 6.6726e-8
-kB = 1.380658e-16
-c = 2.99792458e10
-mp = 1.67e-24
+from utils import *
 
 def make_lightcurve(log_dirs,fig_filename,zoom=None):
 
@@ -109,11 +97,14 @@ def make_lightcurve(log_dirs,fig_filename,zoom=None):
     else:
         ax.set_xlim(zoom)
 
-    fig.savefig(fig_filename, bbox_inches='tight')
+    fig.savefig(fig_filename, bbox_inches='tight', format='pdf')
     print("\nSaved to ",fig_filename)
 
     # Save fig handle with pickle. Serves as a lightweight portable interactive plot
-    with open("lightcurve.pickle","wb") as f:
+    pickle_filename = fig_filename
+    if "." in pickle_filename[1:]: # skip the first character in case current dir is given, e.g. filename=./lightcurve.pdf
+        pickle_filename = pickle_filename[:pickle_filename[1:].find(".")+1]
+    with open(pickle_filename + ".pickle","wb") as f:
         pickle.dump(fig, f)
     
 

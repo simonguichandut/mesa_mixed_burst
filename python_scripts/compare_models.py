@@ -1,65 +1,4 @@
-import os 
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import cumtrapz,trapz
-import mesa_reader as mr
-
-import matplotlib as mpl
-mpl.rcParams.update({
-
-    # Use LaTeX to write all text
-    "text.usetex": True,
-    "font.family": "serif",
-    # Use 10pt font in plots, to match 10pt font in document
-    #"axes.labelsize": 10,
-    #"font.size": 10,
-    # Make the legend/label fonts a little smaller
-    #"legend.fontsize": 8,
-    #"xtick.labelsize": 8,
-    #"ytick.labelsize": 8,
-    # Non-italic math
-    "mathtext.default": "regular",
-    # Tick settings
-    "xtick.direction" : "in",
-    "ytick.direction" : "in",
-    "xtick.top" : True,
-    "ytick.right" : True,
-    # Short dash sign
-    "axes.unicode_minus" : True
-})
-
-def get_isotope_list():
-    isotope_filepath = os.environ.get("MESA_DIR")+'/data/chem_data/isotopes.data'
-    isotope_list = []
-    with open(isotope_filepath) as f:
-        next(f)
-        for i,line in enumerate(f):
-            if i%4==0:
-                isotope_list.append(line.split()[0])
-    return isotope_list
-
-def get_most_abundant_isotope(data):
-    # returns a list containing the most abundant isotope in each grid point
-    isotope_list = get_isotope_list()
-    isotopes_present = [iso for iso in isotope_list if (data.in_data(iso) and max(data.bulk_data[iso])>1e-3)]
-    most = []
-    for i in range(len(data.d)):
-        abundances = [data.bulk_data[iso][i] for iso in isotopes_present]
-        most.append(isotopes_present[abundances.index(max(abundances))])
-        #print(data.d[i],most[-1])
-    return most
-
-def latexify_iso(iso):
-    for i,char in enumerate(iso):
-        if char.isdigit():
-            letters = iso[0].upper() + iso[1:i]
-            numbers = iso[i:]
-            break
-    return (r'${}^{%s}$%s'%(numbers,letters))
-
-#get_most_abundant_element(mr.MesaData('3_accrete_he_to_flash/ns_Edd.mod'))
-
+from utils import *
 
 def make_figure(models, filename=None):
 
@@ -108,7 +47,7 @@ def make_figure(models, filename=None):
 
         # Plot the luminosity with the same linestyles, add the labels including 
         # ymax and rmax
-        ymax = -trapz(data.d,data.R)
+        ymax = -integrate.trapz(data.d,data.R)
         name = model.replace('/',' : ').replace('_','\_')
         lab = ('%s\n'r'$r_\mathrm{max}$=%.3e km \quad $\log y_\mathrm{max}$=%.1f'%(name,data.R[0]/1e5,np.log10(ymax)))
         ax2.loglog(data.d,data.L,color='r',ls=linestyles[m],label=lab)

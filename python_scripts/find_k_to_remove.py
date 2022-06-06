@@ -3,13 +3,7 @@
 # finds the outermost point with acceleration 0 and then modifies the 
 # line remove_initial_surface_by_density in the inlist
 
-import sys
-from tkinter import W
-# import mesa_reader as mr
-import py_mesa_reader as mr
-import argparse
-import numpy as np
-from scipy.integrate import cumtrapz
+from utils import *
 
 ## Load data
 filename = "models/ns_env_ejected.mod"
@@ -27,7 +21,7 @@ v = data.v
 dr = data.R[1:]-data.R[:-1]
 dr = np.insert(dr, 0, dr[0]) # just duplicate first element so that array is same length as others
 
-ycol = -cumtrapz(rho,r,initial=0)
+ycol = -integrate.cumtrapz(rho,r,initial=0)
 
 # rhop = (rho[2:]-rho[:-2])/(r[2:]-r[:-2])
 # rhopp = (rho[2:]+rho[:-2]-2*rho[1:-1])/((r[2:]-r[:-2])/2)**2 
