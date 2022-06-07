@@ -9,6 +9,10 @@
   change_initial_net = .true.
   !$ new_net_name = 'cno_extras_plus_fe56.net'
 
+  !! Initial timestep
+  set_initial_dt = .true.
+  seconds_for_initial_dt = 1d0
+
   pgstar_flag = .true.
   show_timestep_limit_counts_when_terminate = .true.
 

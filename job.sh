@@ -8,28 +8,28 @@
 #SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-#SBATCH --array=1,2,3,4,5,6
+#SBATCH --array=1,2,3
 
 
 ## Single run
-#RUN_DIR=I1
+RUN_DIR=helium0
 
 ## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-dir_list_file=runs/dir_list
-RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+#dir_list_file=runs/dir_list
+#RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
 
 ## Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=5
+START=3
 
 ## Which inlist to stop after (8 to go to the end)
-STOP=5
+STOP=8
 
 ## Is it a restart?
-RESTART = false
-RESTART_PHOTO = photos/7_wind/x500 # (path from run directory)
+RESTART=false
+RESTART_PHOTO=photos/7_wind/x500 # (path from run directory)
 
 #--------------------------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ export OMP_NUM_THREADS=8
 export BASE="/home/ximun/projects/def-cumming/ximun/mixed_burst/base"
 export PYTHON="/home/ximun/projects/def-cumming/ximun/mixed_burst/python_scripts"
 export RUNS="/home/ximun/projects/def-cumming/ximun/mixed_burst/runs"
-export SCRATCH="/home/ximun/scratch/mixed_burst_storage"
+export SCRATCH="/home/ximun/scratch/mixed_burst_scratch"
 
 ## Functions
 

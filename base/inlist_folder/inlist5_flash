@@ -11,7 +11,7 @@
   show_timestep_limit_counts_when_terminate = .true.
 
   !! More detailed history column file (include info about mixing and burning zones)
-  history_columns_file = '/home/ximun/mixed_burst/base/history_columns_extra.list'
+  history_columns_file = '/home/ximun/projects/def-cumming/ximun/mixed_burst/base/history_columns_extra.list'
 
   !! Run-specific inlist
   read_extra_star_job_inlist2 = .true.

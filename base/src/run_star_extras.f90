@@ -142,7 +142,8 @@
             allocate(ycol(s%nz))
             ycol = s%P/(10**s%log_surface_gravity) ! y=P/g hydrostatic equilibrium
 
-            if (ycol(s%max_eps_nuc_k) > yd) then
+            !if (ycol(s%max_eps_nuc_k) > yd) then
+            if ( ANY( ycol(s%max_eps_nuc_k) .gt. yd .and. s% mixing_type == convective_mixing ) ) then
                extras_check_model = terminate
                s% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'Ignited!'

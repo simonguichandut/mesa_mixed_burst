@@ -1,0 +1,7 @@
+These 4 files allow pgstar to plot a Kippenhan with column depth as the y-axis
+For now, the column depth is calculated based on m/mstar coordinates given by default in history
+Works as long as the atmosphere is compact (radius constant)
+    - star/private/pgstar_kipp.f90           (plotting routines)
+    - star/private/pgstar_ctrls_io.f90       (declaring new pgstar options)
+    - star/defaults/pgstar.defaults          ("")   
+    - star_data/private/pgstar_controls.inc  ("")

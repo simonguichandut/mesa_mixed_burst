@@ -30,7 +30,7 @@
       
       ! you might want to get a more complete list of mixing regions by using the following
 
-      mixing_regions 20
+      mixing_regions 50
       
       !mixing_regions <integer> ! note: this includes regions where the mixing type is no_mixing.
          ! the <integer> is the number of regions to report
@@ -73,7 +73,7 @@
 
       ! you might want to get a more complete list of burning regions by using the following
 
-      burning_regions 20
+      burning_regions 50
       
       !burning_regions <integer>
          ! the <integer> is the number of regions to report
