@@ -352,7 +352,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 1
+         how_many_extra_history_columns = 3
       end function how_many_extra_history_columns
       
       
@@ -364,7 +364,9 @@
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          integer :: k
-         real(dp) :: check,frac,tau00,taup1,v00,vp1
+         real(dp) :: check,frac,tau00,taup1,v00,vp1,bb
+         integer :: cnt, cur_type
+         real(dp), dimension(:), allocatable :: burn_type
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
@@ -373,6 +375,7 @@
          ! the history_columns.list is only for the built-in history column options.
          ! it must not include the new column names you are adding here.
 
+         !! Luminosity at tau=1
          names(1) = "luminosity_tau1"
 
          ! Following star/private/report.f90 check_tau()
@@ -400,7 +403,45 @@
             end if
 
          end if
+
+
+         !! Number of mixing regions
+         names(2) = "N_mix_regions"
+
+         ! Following star/private/hisory.f90 
+
+         ! This would be great but I'm not able to import this function..
+         !call count_regions(s% mixing_type, cnt, min_ktop, min_kbot) !we only care about cnt
+         !vals(2) = cnt
+
+         ! But it's actually simple enough
+         cnt = 1
+         cur_type = s% mixing_type(s% nz)
+         do k = s% nz -1 ,1,-1
+            if (cur_type == s% mixing_type(k)) cycle ! cycle means skip the next lines in the loop and start again
+            cur_type = s% mixing_type(k)
+            cnt = cnt+1
+         end do
+         vals(2) = cnt
+
+
+         !! Number of burning regions
+         names(3) = "N_burn_regions"
          
+         ! Same thing. Def of burn_type from set_burn_types() in history.f90
+         allocate(burn_type(s% nz))
+         do k=1,s% nz
+            bb = s% eps_nuc(k) - s% non_nuc_neu(k)
+            burn_type(k) = int(sign(1d0,bb)*max(0d0,1d0+safe_log10(abs(bb))))
+         end do
+         cnt = 1
+         cur_type = burn_type(s% nz)
+         do k = s% nz -1 ,1,-1
+            if (cur_type == burn_type(k)) cycle
+            cur_type = burn_type(k)
+            cnt = cnt+1
+         end do
+         vals(3) = cnt
 
       end subroutine data_for_extra_history_columns
 

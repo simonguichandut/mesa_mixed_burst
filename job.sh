@@ -12,20 +12,20 @@
 
 
 ## Single run
-RUN_DIR=helium0
+#RUN_DIR=I7
 
 ## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
 # containing the names of the directories to run
-#dir_list_file=runs/dir_list
-#RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
+dir_list_file=runs/dir_list
+RUN_DIR=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $dir_list_file)
 
 ## Which inlist to start with (give number)
 inlists=(1_relax_R 2_accrete_Fe 3_relax_Lcenter 4_accrete 5_flash 6_relax_tau 7_wind 8_fallback)
-START=3
+START=5
 
 ## Which inlist to stop after (8 to go to the end)
-STOP=8
+STOP=5
 
 ## Is it a restart?
 RESTART=false
