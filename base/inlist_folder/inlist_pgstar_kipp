@@ -1,8 +1,8 @@
 
 &pgstar
 
-	pgstar_interval = 10
-	!pgstar_interval = 100000000
+	!pgstar_interval = 10
+	pgstar_interval = 100000000
 	!pause = .false.
 	!pause_interval = -1
 
