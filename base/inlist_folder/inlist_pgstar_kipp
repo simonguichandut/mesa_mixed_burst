@@ -2,12 +2,13 @@
 &pgstar
 
 	pgstar_interval = 10
+	!pgstar_interval = 100000000
 	!pause = .false.
 	!pause_interval = -1
 
 	!! Layout
 	Grid1_win_flag = .true.
-	Grid1_win_width = 15
+	Grid1_win_width = 12
 	Grid1_win_aspect_ratio = 0.66
 	Grid1_num_cols = 2
 	Grid1_num_rows = 2
@@ -71,8 +72,6 @@
 	Grid1_plot_rowspan(3) = 1
 	Grid1_plot_col(3) = 2
 	Grid1_plot_colspan(3) = 1
-    Grid1_plot_pad_left(3) = 0.05 ! fraction of full window width for padding on left
-    Grid1_plot_pad_right(3) = 0.1 ! fraction of full window width for padding on left
 	Grid1_txt_scale_factor(3) = 0.6
     Grid1_plot_pad_top(3) = -0.02
     Grid1_plot_pad_bot(3) = 0.05
@@ -82,9 +81,9 @@
 	Kipp_switch_to_Column_Depth = .true.
 
 	Kipp_xaxis_name = 'model_number'
+	!Kipp_xaxis_name = 'star_age'
+	!Kipp_xaxis_in_seconds = .true.
 
-	Kipp_xaxis_name = 'star_age'
-	Kipp_xaxis_in_seconds = .true.
 	!Kipp_xaxis_log = .true.
 	!Kipp_xaxis_time_from_present = .true. ! doesnt work in log time
 	
@@ -104,8 +103,6 @@
 	Grid1_plot_rowspan(4) = 1
 	Grid1_plot_col(4) = 2
 	Grid1_plot_colspan(4) = 1
-    Grid1_plot_pad_left(4) = 0.05 ! fraction of full window width for padding on left
-    Grid1_plot_pad_right(4) = 0.1 ! fraction of full window width for padding on left
 	Grid1_txt_scale_factor(4) = 0.6
     Grid1_plot_pad_top(4) = 0.05
     Grid1_plot_pad_bot(4) = -0.02

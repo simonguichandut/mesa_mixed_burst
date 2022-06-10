@@ -95,7 +95,7 @@ def get_burn_mix_matrix_from_history(hist, lgy_arr):
 
         # There seems to be an issue when there are too many mixing zones and not enough columns to be able to report them
         # Mesa will (might?) output the last zone (mix_top_20=1.0) as some convective type, when really the last zone should always (?) be non-convective
-        mix_raw[-1] = 0
+        # mix_raw[-1] = 0
 
         mix_raw = np.repeat(mix_raw, 2)
         lgy = [lgybounds[0],]
@@ -267,7 +267,7 @@ def plot_kipp_from_history(fig, ax, cbax, hist, lgy_arr, xaxis="star_age", show_
 # fig,ax = plt.subplots(1,1)
 # hist = mr.MesaData("runs/G1/histories/history_5_flash.data")
 # lgy = np.linspace(9,3,500)
-# plot_kipp_from_history(fig,ax,cbax=None,hist=hist,lgy_arr=lgy,xaxis='model_number',show_burn=False)
+# plot_kipp_from_history(fig,ax,cbax=None,hist=hist,lgy_arr=lgy,xaxis='model_number',show_burn=True,show_mix=False)
 # plt.show()
             
 
@@ -298,12 +298,11 @@ def plot_composition_from_model(fig, ax, mod):
 
 
 
-def plot_kipp_comp(history_file, mod_file):
+def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age'):
 
     # Kippenhan plot from history file, composition profile from mod file
 
     hist = mr.MesaData(history_file)
-    mod = mr.MesaData(mod_file)
     lgy = np.linspace(9,3,500)
     
     fig = plt.figure(figsize=(13,5))
@@ -311,27 +310,30 @@ def plot_kipp_comp(history_file, mod_file):
 
     ax1 = fig.add_subplot(gs[0,1])
     cbax = fig.add_subplot(gs[0,0])
-    axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True)
+    axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
     # plot_kipp_from_history(fig, ax1, cbax, hist, lgy, xaxis='model_number', show_luminosity=True, show_time_steps=True, show_num_zones=True)
     cbax.yaxis.set_ticks_position('left')
     cbax.yaxis.set_label_position('left')
-    ax1.set_xlim([7.5,hist.star_age[-1]*yr])
-    # plot_kipp_from_history(fig, ax,hist,lgy, xaxis='model_number')
-    # plt.tight_layout()
+
+    if kipp_xaxis == 'star_age':
+        ax1.set_xlim([7.5,hist.star_age[-1]*yr])
 
     # Bring colorbar closer
     l1,b1,_,_ = ax1.get_position().bounds
     l2,b2,w2,h2 = cbax.get_position().bounds
     cbax.set_position([l2+0.5*(l1-l2), b2, w2, h2])
 
-    ax2 = fig.add_subplot(gs[0,2])
-    plot_composition_from_model(fig, ax2, mod)
-    ax2.set_xlim([3,10])
-    ax2.set_ylim([-4,0.01])
-    ax2.set_yticks([0,-1,-2,-3,-4])
+    if mod_file != None:
+        mod = mr.MesaData(mod_file)
+        ax2 = fig.add_subplot(gs[0,2])
+        plot_composition_from_model(fig, ax2, mod)
+        ax2.set_xlim([3,10])
+        ax2.set_ylim([-4,0.01])
+        ax2.set_yticks([0,-1,-2,-3,-4])
+        axes += [ax2]
 
     # Bring all plots towards the left
-    for ax in axes+[ax2]:
+    for ax in axes:
         l,b,w,h = ax.get_position().bounds
         ax.set_position([l-0.1,b,w,h])
 
@@ -341,25 +343,25 @@ def plot_kipp_comp(history_file, mod_file):
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        sys.exit("give run_dir")
+        print("give run_dir")
 
-    run_dir = sys.argv[1]
-    if run_dir[-1] != '/': run_dir+='/'
+    else:
+        run_dir = sys.argv[1]
+        if run_dir[-1] != '/': run_dir+='/'
 
+        ## Kipp for flash, composition at end of flash (some fraction of Eddington)
 
+        history_file = run_dir + "histories/history_5_flash.data"
+        if not os.path.exists(history_file):
+            sys.exit("Can't find history file ", history_file)
 
-    ## Kipp for flash, composition at end of flash (some fraction of Eddington)
+        # mod_file = run_dir + "models/ns_env_Edd.mod" 
+        # if not os.path.exists(mod_file):
+        #     sys.exit("Can't find mod file ", mod_file)
 
-    history_file = run_dir + "histories/history_5_flash.data"
-    if not os.path.exists(history_file):
-        sys.exit("Can't find history file ", history_file)
+        print("Making kippenhan/composition plot for ", run_dir)
 
-    mod_file = run_dir + "models/ns_env_Edd.mod" 
-    if not os.path.exists(mod_file):
-        sys.exit("Can't find mod file ", mod_file)
-
-    print("Making kippenhan/composition plot for ", run_dir)
-
-    #fig = plot_kipp_final_composition("runs/G1/histories/history_5_flash.data", "runs/G1/models/ns_env_Edd.mod")
-    fig = plot_kipp_comp(history_file, mod_file)
-    fig.savefig(run_dir + "kipp_comp_Edd.pdf")
+        #fig = plot_kipp_final_composition("runs/G1/histories/history_5_flash.data", "runs/G1/models/ns_env_Edd.mod")
+        # fig = plot_kipp_comp(history_file, mod_file)
+        fig = plot_kipp_comp(history_file, mod_file=None, kipp_xaxis='model_number')
+        fig.savefig(run_dir + "kipp_comp_Edd.pdf")

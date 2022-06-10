@@ -347,7 +347,7 @@
             call show_xaxis_label_pgstar(s,trim(xlabel),1.0)
 
             if (s% Kipp_switch_to_Column_Depth) then
-               call show_left_yaxis_label_pgstar(s,'(approx) log column depth (g cm\u-2\d)')
+               call show_left_yaxis_label_pgstar(s,'\(0248)\u log column depth (g cm\u-2\d)')
             else
                call show_left_yaxis_label_pgstar(s,'M/M\d\(2281)')
             end if
