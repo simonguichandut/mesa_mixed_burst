@@ -8,11 +8,11 @@
 #SBATCH --mem=8G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-#SBATCH --array=1,2,3,4,5
+#SBATCH --array=1,2
 
 
 ## Single run
-#RUN_DIR=I8c
+#RUN_DIR=I7d
 
 ## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
