@@ -41,9 +41,13 @@
    csound ! sound speed
    ! v_div_csound ! velocity divided by sound speed
 
-   ! ledoux_stable ! 1 if gradL > gradr, 0 otherwise
    ! conv_vel ! convection velocity (cm/sec)
    conv_mixing_type ! mixing types are defined in mesa/mlt/public/mlt_def (NO, they're in mesa/const/public/const_def.f90)
+   gradr ! dlnT/dlnP required for purely radiative transport
+   grada ! dlnT_dlnP at constant S
+   gradL ! gradient for Ledoux criterion for convection
+   !sch_stable ! 1 if grada > gradr, 0 otherwise
+   !ledoux_stable ! 1 if gradL > gradr, 0 otherwise
 
    ! total_energy ! v^2/2 - G m / r + E (ergs/g).  negative if bound
    eps_nuc ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
