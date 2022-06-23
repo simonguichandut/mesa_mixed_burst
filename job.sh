@@ -144,13 +144,14 @@ for inlist in ${inlists[@]}; do
         python $PYTHON/find_k_to_remove.py -m $k_method
     fi
 
-    if [ $n -eq 5 ] ; then
-        cp $BASE/history_columns_extra.list $BASE/history_columns.list
-    else
-        cp $BASE/history_columns_small.list $BASE/history_columns.list
-    fi
-    
     if [ $n -ge "$START" ] ; then
+
+        if [ $n -eq 5 ] ; then
+            cp $BASE/history_columns_extra.list $BASE/history_columns.list
+        else
+            cp $BASE/history_columns_small.list $BASE/history_columns.list
+        fi
+
         run_one $inlist
     fi
     if [ $n -eq "$STOP" ] ; then
