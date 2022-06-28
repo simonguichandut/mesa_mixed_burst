@@ -6,7 +6,6 @@ import sys
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation,FFMpegWriter
 import scipy.interpolate as interpolate
 import scipy.integrate as integrate
 import argparse

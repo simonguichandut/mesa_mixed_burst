@@ -1,10 +1,9 @@
+from sympy import latex
 from utils import *
 
-def make_figure(models, filename=None):
+def make_Trho_plot(models, filename=None):
 
     fig,ax = plt.subplots(1,1)
-    #fig,ax = plt.subplots(1,1,figsize=(6,4))
-    #fig,ax = plt.subplots(1,1,figsize=(6.9, 4.3))
     ax.set_xlabel(r'$\rho$ (g cm$^{-3}$)')
     ax.set_ylabel(r'$T$ (K)')
     ax2 = ax.twinx()
@@ -38,7 +37,7 @@ def make_figure(models, filename=None):
             else:
                 ax.loglog(data.d[a:b],data.T[a:b],lw=3,color=iso_colors[iso])
 
-        #ax.legend(loc=4,frameon=False)
+        # Legend on the top right for isotopes
         box,trans = (1,1),ax.transAxes
         ax.legend(frameon=False, ncol=2, bbox_to_anchor=box, bbox_transform=trans, loc='lower right')
 
@@ -52,7 +51,7 @@ def make_figure(models, filename=None):
         lab = ('%s\n'r'$r_\mathrm{max}$=%.3e km \quad $\log y_\mathrm{max}$=%.1f'%(name,data.R[0]/1e5,np.log10(ymax)))
         ax2.loglog(data.d,data.L,color='r',ls=linestyles[m],label=lab)
 
-        #ax2.legend(loc=2,frameon=False)
+        # Legend on the top left for models
         box,trans = (0,1),ax2.transAxes
         ax2.legend(frameon=False, ncol=1, bbox_to_anchor=box, bbox_transform=trans, loc='lower left')
 
@@ -61,13 +60,94 @@ def make_figure(models, filename=None):
         plt.show()
     else:
         plt.savefig(filename,bbox_inches='tight')
-        print('saved to ',filename)
+        print('\nSaved to ',filename)
 
-#make_figure(models = ('run_5e34_1e-9/ns_Edd.mod','run_5e34_1e-9/ns_Edd_AC.mod'),filename='pdf/Edd_models.pdf')
+
+def make_Xy_plot(models, isotopes, filename=None):
+
+    fig,ax = plt.subplots(1,1)
+    ax.set_xlabel(r'$y$ (g cm$^{-2}$)')
+    ax.set_ylabel(r'$X$')
+
+    ax.set_xlim([1e3,1e10])
+    ax.set_ylim([1e-4,1.2])
+
+    # Colors for models
+    # mod_colors = {}
+
+    # Linestyles for isotopes
+    linestyles = ['-',':','--','-.']
+    if len(isotopes) > len(linestyles):
+        print("WARNING : not enough linestyles (%d) for number of isotopes (%d)"%(len(linestyles),len(isotopes)))
+
+    # # Black line outside of the plot for isotopes legend (top right)
+    ax2=ax.twinx()
+    ax2.yaxis.set_visible(False)
+    for i,iso in enumerate(isotopes):
+        line = ax2.plot([1e-10,1e-10],[1e-10,1e-10],color='k',ls=linestyles[i],label=latexify_iso(iso))
+    box,trans = (1,1),ax2.transAxes
+    leg2 = ax2.legend(frameon=False, ncol=2, bbox_to_anchor=box, bbox_transform=trans, loc='lower right')
+
+
+    for m,model in enumerate(models):
+        data = mr.MesaData(model)
+        column = integrate.cumtrapz(data.dq/data.R**2) * data.xmstar/(4*np.pi)
+
+        for i,iso in enumerate(isotopes):
+            if i==0:
+                ymax = column[-1]
+                name = model.replace('/',' : ').replace('_','\_')
+                lab = ('%s\n'r'$r_\mathrm{max}$=%.3e km \quad $\log y_\mathrm{max}$=%.1f'%(name,data.R[0]/1e5,np.log10(ymax)))
+                line = ax.loglog(column, data.bulk_data[iso][1:], ls=linestyles[i], lw=2, label=lab)
+                color = line[0].get_color()
+            else:
+                ax.loglog(column, data.bulk_data[iso][1:], ls=linestyles[i], color=color, lw=2)
+
+
+    # Legend on the top left for models    
+    box,trans = (0,1),ax.transAxes
+    ax.legend(frameon=False, ncol=1, bbox_to_anchor=box, bbox_transform=trans, loc='lower left')
+
+    if filename is None:
+        plt.tight_layout()
+        plt.show()
+    else:
+        plt.savefig(filename,bbox_inches='tight')
+        print('\nSaved to ',filename)
+
+
+
+
+# Command line call
+parser = argparse.ArgumentParser(description="Compare MESA .mod files")
+parser.add_argument('-f','--files', type=str, nargs='+', help='paths of mod files to be plotted', default=None)
+parser.add_argument('-p','--plot', type=str, help='plot function (Trho, Xy)', default='Trho')
+parser.add_argument('-s','--show', action='store_true', help="plt.show, don't save")
+parser.add_argument('-o','--outfile', type=str,help='path and filename of output file', default='plot.png')
+
+parser.add_argument('-iso','--isotopes', type=str, nargs='+', help='list of specific isotopes to include in Xy plot', default=['h1'])
+
 
 if __name__ == "__main__":
-    if len(sys.argv)>=2:
-        if '.mod' not in sys.argv[-1]: # means the last arg is the filename
-            make_figure(models=sys.argv[1:-1],filename=sys.argv[-1])
-        else:
-            make_figure(models=sys.argv[1:])
+    args = parser.parse_args()
+
+    if args.files == None:
+        print("No mod files given")
+        sys.exit()
+    elif True in [".mod" not in file for file in args.files]:
+        print("Expecting all .mod files")
+        sys.exit()
+
+    filename = args.outfile
+    if args.show:
+        filename = None
+
+    if args.plot in ('Trho','T_rho'):
+        make_Trho_plot(args.files, filename)
+    
+    elif args.plot in ('X','Xy','composition'):
+        make_Xy_plot(args.files, args.isotopes, filename)
+
+    else:
+        print("Unknown plot function", args.plot)
+        parser.print_help()

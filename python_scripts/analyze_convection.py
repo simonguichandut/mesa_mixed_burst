@@ -316,7 +316,6 @@ def plot_kipp_from_history(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn
        lgy_mat_burn,burn,lgy_mat_mix,mix = get_burn_mix_matrix_from_history_dynamic_lgy(hist)
        Yburn = lgy_mat_burn
        Ymix = lgy_mat_mix
-       #X = np.outer(xx, np.ones(Yburn.shape[1]))
        X = np.outer(np.ones(Yburn.shape[0]), xx)
 
     ## Burning
@@ -498,9 +497,8 @@ def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None):
 
     ax1 = fig.add_subplot(gs[0,1])
     cbax = fig.add_subplot(gs[0,0])
-    # axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
-    # plot_kipp_from_history(fig, ax1, cbax, hist, lgy, xaxis='model_number', show_luminosity=True, show_time_steps=True, show_num_zones=True)
-    axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy=None, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+    axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+    # axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgyone, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
     cbax.yaxis.set_ticks_position('left')
     cbax.yaxis.set_label_position('left')
 
@@ -536,6 +534,8 @@ def test(run_dir,history_file, mod_file):
     # lgy_mat_burn,burn,lgy_mat_mix,mix = get_burn_mix_matrix_from_history_dynamic_lgy(hist)
 
     log_dir = run_dir + "LOGS/5_flash/"
+    if not os.path.exists(run_dir+"png"):
+        os.mkdir(run_dir+"png")
     
     index = mr.MesaProfileIndex(log_dir+"profiles.index")
 
@@ -545,11 +545,11 @@ def test(run_dir,history_file, mod_file):
     # filename structure
     filename = lambda n: log_dir+"profile%d.data"%n
 
-    # Go through each profile, save the y-coords of the top of each mixing zones.
-    # We'll include non-convective because that tells us about the gaps between convective regions
-    Mix_type_all, Mix_ytop_all = [],[]
-    # Also store the size of each convection zone, normalized by the scale height at the bottom
-    Mix_size_all = []
+    # # Go through each profile, save the y-coords of the top of each mixing zones.
+    # # We'll include non-convective because that tells us about the gaps between convective regions
+    # Mix_type_all, Mix_ytop_all = [],[]
+    # # Also store the size of each convection zone, normalized by the scale height at the bottom
+    # Mix_size_all = []
 
     g = G*1.4*Msun/12e5**2
     def H(T,mu):
@@ -621,7 +621,7 @@ def test(run_dir,history_file, mod_file):
         ax.set_xlim(4,10)
         ax.set_ylim(-5,1.5)
         # plt.pause(0.1)
-        fig.savefig(run_dir+'png/%05d.png'%i, bbox_inches='tight', dpi=100)
+        fig.savefig(run_dir+'png/conv_%05d.png'%i, bbox_inches='tight', pad_inches=1, dpi=150)
         for line in lines:
             line.remove()
         
@@ -646,7 +646,7 @@ parser.add_argument('-x','--xaxis', type=str, help='x-axis for kippenhan plot (s
 parser.add_argument('-t0',type=float, help='minimum time in case x-axis=star_age', default=None)
 
 parser.add_argument('-s','--show', action='store_true', help='show plot dont save')
-parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run dir', default='kipp.pdf')
+parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run dir)', default='kipp.pdf')
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -661,7 +661,7 @@ if __name__ == "__main__":
     history_file = run_dir + args.histfile
     if not os.path.exists(history_file):
         print("Can't find history file ", history_file) 
-        sys.exit()
+        if not args.test: sys.exit()
 
     mod_file = run_dir + args.modfile
     if not os.path.exists(mod_file):
@@ -669,7 +669,6 @@ if __name__ == "__main__":
         #sys.exit()
         print("Will make kippenhan but not composition profile")
         mod_file = None
-
     
     if args.test:
         test(run_dir, history_file, mod_file)

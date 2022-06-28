@@ -1,9 +1,14 @@
 from utils import *
+from matplotlib.animation import FuncAnimation,FFMpegWriter
 
-def make_nuc_movie(log_dir,movie_filename):
+# Movies from profiles
 
-    if log_dir[-1]!='/': log_dir += '/' 
-    # num_profiles = len([f for f in listdir(logdir) if isfile(join(logdir, f)) and ".data" in f and "history" not in f])
+def make_nuc_movie(log_dir, movie_filename):
+    # A 3-panel plot of temperature, nuclear reactions, and compositin, wrt column depth. animated using matplotlib funcanimation. The way I did this way by 
+    # first figuring out how many lines are needed (and patches in the case of convective zones highlight), storing in dictionaries, initializing the plot elements,
+    # and then updating their data in the update function. I'm not sure this was done correctly in the case of convective zones, the number of which 
+    # can decrease... Regardless, it gives a good overview of the evolution of convection
+
     index = mr.MesaProfileIndex(log_dir+"profiles.index")
     num_profiles = len(index.profile_numbers)
     filename = lambda n: log_dir+"profile%d.data"%n
@@ -220,10 +225,144 @@ def make_nuc_movie(log_dir,movie_filename):
     print("\nSaved to ",movie_filename)
 
 
+
+def make_conv_movie(log_dir, movie_filename):
+    # A closer inspection of convection zones. 
+
+    g = G*1.4*Msun/12e5**2
+    def H(T,mu):
+        return kB*T/(mu*mp*g)
+
+    index = mr.MesaProfileIndex(log_dir+"profiles.index")
+    num_profiles = len(index.profile_numbers)
+    filename = lambda n: log_dir+"profile%d.data"%n
+    print(f"Making movie using {num_profiles} log files in {log_dir}")
+
+    fig, ax = plt.subplots(1,1)
+    axb = ax.twinx()
+    ax.set_ylabel(r"log $\Delta r/H$")
+    axb.set_ylabel(r"log $\epsilon_{\rm{nuc}}$")
+    ax.set_xlabel(r"log $y$")
+    ax.set_xlim(4,10)
+    ax.set_ylim(-5,1.5)
+    axb.set_ylim(14,20)
+
+    colors = ['k','g','m','c','y']
+
+    # Out of bounds points just for the legend
+    ax.plot(0,0,'k.',label='gap')
+    ax.plot(0,0,'g.',label='conv')
+    ax.plot(0,0,'m.',label='over')
+    ax.plot(0,0,'c.',label='semi')
+    ax.plot(0,0,'y.',label='th')
+    ax.legend(frameon=False,loc=3)
+
+    def func_plot(prof_number):
+
+        # Start by removing lines from previous plot
+        # print(func_plot.lines)
+        for line in func_plot.lines:
+            line.remove()
+        func_plot.lines = []
+
+        # func_plot.lines = []
+
+        data = mr.MesaData(filename(prof_number))
+
+        # Burning data
+        lgeps = [np.log10(e) if e>0 else 0 for e in data.eps_nuc]
+        line = axb.plot(np.log10(data.column_depth), lgeps, 'r-', lw=0.5)
+        func_plot.lines.append(line[0])
+
+        # Convection zones
+        mx = data.conv_mixing_type[::-1]
+        r = data.R_cm[::-1]
+        y = data.column_depth[::-1]
+        T = data.T[::-1]
+        mu = data.mu[::-1]
+
+        mix_type = []
+        mix_size = []
+        mix_ytop = []
+        cur_type = mx[0]
+        ybot = y[0]
+        rbot = r[0]
+        Hbot = H(T[0],mu[0])
+                
+        for j in range(1,len(mx)-1):
+
+
+            if mx[j] != cur_type: # change of mixing type
+
+                mix_type.append(cur_type)
+
+                ytop = y[j]
+                mix_ytop.append(ytop)
+
+                rtop = r[j]
+                mix_size.append((rtop-rbot)/Hbot)
+
+                xx1, xx2 = np.log10([ybot,ytop])
+                yy = np.log10(mix_size[-1])
+                col = colors[cur_type]
+                marker = None if yy>-1 else 'o'  # cant see the lines if they are too short
+                line = ax.plot([xx1,xx2], [yy,yy], color=col, ls='-', marker=marker, ms=2)
+                func_plot.lines.append(line[0])
+
+                cur_type = mx[j]
+                rbot = rtop
+                ybot = ytop
+                Hbot = H(T[j],mu[j])
+
+        Nzones = len([1 for x in mix_type if x!=0])
+        fig.suptitle(f"Model \#{data.model_number} --- t = {data.star_age*yr:.1e} s --- log dt/s = {np.log10(data.time_step*yr):.1f} --- Nzones = {Nzones}", y=0.95)
+
+
+
+    func_plot.lines = []
+
+    profile_list = index.profile_numbers
+    anim = FuncAnimation(fig, func_plot, frames=profile_list)
+    writervideo = FFMpegWriter(fps=30)
+    anim.save(movie_filename, writer=writervideo)
+    print("\nSaved to ",movie_filename)
+
+
+
+# Command line call
+parser = argparse.ArgumentParser(description="Analyze convection")
+parser.add_argument('-dir','--rundir', type=str, help='run directory', default=None)
+parser.add_argument('-L','--logdir', type=str, help='log directory (withing run_dir/LOGS/', default=None)
+parser.add_argument('-m','--movie', type=str, help='movie function (nuc, conv)', default=None)
+parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run_dir/movies)', default='movie.mp4')
+
+
 if __name__ == "__main__":
-    if len(sys.argv):
-        log_dir, movie_filename = sys.argv[1:]
-        if os.path.exists(log_dir+"profiles.index"):
-            make_nuc_movie(log_dir, movie_filename) 
-        else:
-            print("Index file does not exist for ",log_dir)
+    args = parser.parse_args()
+
+    if args.rundir == None:
+        print("give run_dir")
+        sys.exit()
+
+    if args.logdir == None:
+        print("give log_dir")
+        sys.exit()
+
+    run_dir = args.rundir
+    if run_dir[-1] != '/': run_dir += '/'
+    log_dir = args.logdir
+    if log_dir[-1] != '/': log_dir += '/'
+
+    full_log_dir = run_dir + 'LOGS/' + log_dir
+    movie_filename = run_dir + 'movies/' + args.outfile
+
+    if args.movie in ('nuc','nuc_movie','nuclear'):
+        make_nuc_movie(full_log_dir, movie_filename)
+
+    elif args.movie in ('conv','conv_movie','convection'):
+        make_conv_movie(full_log_dir, movie_filename)
+
+    else:
+        print("Unknown movie function ", args.movie)
+        parser.print_help()
+
