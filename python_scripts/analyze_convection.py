@@ -1,4 +1,3 @@
-from urllib import robotparser
 from utils import *
 
 def get_burn_mix_matrix_from_history_fixed_lgy(hist, lgy_arr):
@@ -293,7 +292,7 @@ def get_burn_mix_matrix_from_profiles(log_dir, lgy_arr):
 
 
 
-def plot_kipp_from_history(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn=True, show_mix=True, show_luminosity=True, show_num_zones=False, show_time_steps=False):
+def plot_kippenhan(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn=True, show_mix=True, show_luminosity=True, show_num_zones=False, show_time_steps=False):
 
     ax.set_ylabel(r"log column depth (g cm$^{-2}$)")
 
@@ -497,8 +496,8 @@ def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None):
 
     ax1 = fig.add_subplot(gs[0,1])
     cbax = fig.add_subplot(gs[0,0])
-    axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
-    # axes = plot_kipp_from_history(fig, ax1, cbax, hist, lgyone, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+    axes = plot_kippenhan(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+    # axes = plot_kippenhan(fig, ax1, cbax, hist, lgyone, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
     cbax.yaxis.set_ticks_position('left')
     cbax.yaxis.set_label_position('left')
 

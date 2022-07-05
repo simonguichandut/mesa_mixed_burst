@@ -12,11 +12,14 @@ import argparse
 import pickle
 import py_mesa_reader as mr
 
-# Constants
+# Constants (cgs)
 G = 6.6726e-8
 kB = 1.380658e-16
 c = 2.99792458e10
 mp = 1.67e-24
+me = 9.11e-28
+arad = 7.5657e-15
+sigmarad = 5.6703e-05 
 day = 24*3600
 yr = 3.1536e7
 Msun = 1.989e33

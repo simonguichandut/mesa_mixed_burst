@@ -15,47 +15,56 @@
 ! additional variables
 
    logR_cm ! log10 radius at outer boundary of zone (in centimeters)
+   rmid ! radius at center by mass of zone (in Rsun units)
    ! dr ! r(outer edge) - r(inner edge); radial extent of cell in cm.
-
-   !logL ! log10(max(1d-12,L/Lsun))
-   ! log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
-   !log_L_div_Ledd ! log10(max(1d-12,L/Leddington))
+   
+   dm ! cell mass (grams)
+   q ! fraction of star mass interior to outer boundary of this zone
 
    luminosity ! luminosity at outer boundary of zone (in Lsun units)
    log_Lrad
    log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
 
    mu ! mean molecular weight per gas particle (ions + free electrons)
-   ! q ! fraction of star mass interior to outer boundary of this zone
-
+   eta ! electron degeneracy parameter (eta >> 1 for significant degeneracy)
+   
    pressure ! total pressure at center of zone (pgas + prad)
    pgas_div_ptotal ! pgas/pressure
-   !cv ! specific heat at constant volume
-   !cp ! specific heat at constant total pressure
+   pressure_scale_height ! in Rsun units
+   cv ! specific heat at constant volume
+   cp ! specific heat at constant total pressure
+   entropy ! specific entropy divided by (avo*kerg)
 
    opacity ! opacity measured at center of zone
    logtau ! log10(optical depth) at center of zone
+   tau_eff ! tau that gives the local P == P_atm if this location at surface
    log_column_depth ! log10 column depth, exterior mass / area (g cm^-2)
 
    velocity ! velocity at outer boundary of zone -- 0 if no velocity variable
    csound ! sound speed
-   ! v_div_csound ! velocity divided by sound speed
 
-   ! conv_vel ! convection velocity (cm/sec)
+   conv_vel ! convection velocity (cm/sec)
    conv_mixing_type ! mixing types are defined in mesa/mlt/public/mlt_def (NO, they're in mesa/const/public/const_def.f90)
+   mlt_mixing_length ! mixing length for mlt (cm)
+   log_mlt_D_mix ! log10 diffusion coefficient for mixing from mlt (cm^2/sec)
    gradr ! dlnT/dlnP required for purely radiative transport
    grada ! dlnT_dlnP at constant S
    gradL ! gradient for Ledoux criterion for convection
    !sch_stable ! 1 if grada > gradr, 0 otherwise
    !ledoux_stable ! 1 if gradL > gradr, 0 otherwise
 
-   ! total_energy ! v^2/2 - G m / r + E (ergs/g).  negative if bound
+   fourPrad_div_PchiT ! = phi, where 1/phi = 1 + (dPgas/dPrad)|rho 
+      ! if phi < Lrad/Ledd, then will get density inversion
+      ! see Joss, Salpeter, Ostriker, "Critical Luminosity", ApJ 181: 429-438, 1973.
+
+   super_ad ! max(0,gradT-grada) at cell boundary 
+
+   total_energy ! v^2/2 - G m / r + E (ergs/g).  negative if bound
    eps_nuc ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
    add_reaction_categories ! this adds all the reaction categories
-      ! NOTE: you can list specific categories by giving their names (from net_def)
-      ! This will generate columns labeled burn_ELEMENT
-      ! i.e. burn_ar, burn_c, burn_fe etc and also c12_c12, c12_o16 etc
    eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
+
+
 
 
 ! everything below this line is deactived

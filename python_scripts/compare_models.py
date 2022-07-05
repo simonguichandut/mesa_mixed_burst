@@ -1,4 +1,3 @@
-from sympy import latex
 from utils import *
 
 def make_Trho_plot(models, filename=None):
