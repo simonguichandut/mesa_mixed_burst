@@ -108,30 +108,23 @@
 
          real(dp) :: X,Z,R,Mdot_edd,yd
          real(dp), dimension(:), allocatable :: Lrad,  ycol
-         real(dp) :: LEdd, Lmax, L_rel_err
+         real(dp) :: LEdd, Lmax, L_over_LEdd, L_rel_err
          real(dp), parameter :: rel_err_tol = 1d-3
+         logical :: file_exists
+         integer :: percent_save
+         real(dp) :: frac_save
+         character (len=strlen) :: frac_save_str,save_model_filename
 
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_check_model = keep_going         
-         
-         ! print v_flag
-         ! write(*,*) "v_flag:", s%v_flag, "u_flag:", s%u_flag
 
 
-         ! if (s% x_logical_ctrl(1)) then
-         !    ! check if convective above a certain column depth logy=x_ctrl(1)
-            ! allocate(ycol(s%nz))
-            ! ycol = s%P/(10**s%log_surface_gravity) ! y=P/g hydrostatic equilibrium
-         !    if ( ANY( s% mixing_type == convective_mixing .and. ycol .gt. 10**s%x_ctrl(1) ) ) then
-         !          extras_check_model = terminate 
-         !          s% termination_code = t_xtra1
-         !          termination_code_str(t_xtra1) = 'Convective!'
-         !    end if      
+         ! Various stopping conditions depending on which part of the simulation we are at
          
          if (s% x_logical_ctrl(1)) then
-            ! check if eps_nuc larger in He layer than H layer
+            ! check if eps_nuc larger in He layer than H layer, and if it's convective. This indicates "ignition"
             ! Boundary between layers is given by (Cumming and Bildsten 2000):
             X = s%accretion_species_xa(1)
             Z = s%accretion_species_xa(3)
@@ -159,14 +152,56 @@
 
             !LEdd = 4*pi*standard_cgrav*Msun*1.4*clight/s% opacity(1) 
             ! LEdd = pi4 * clight * s%cgrav(1) * s%m_grav(1) / s%opacity(1) ! ~same as line above, cgrav=G unless GR factors on, m_grav is mass_enclosed, might be slightly larger than 1.4
-            LEdd = pi4 * clight * s%cgrav(1) * s%m_grav(1) / (0.2 * (1 + s%X(1)))
-            Lmax = s%x_ctrl(2)*LEdd
+            LEdd = pi4 * clight * s%cgrav(1) * s%m_grav(1) / (0.2 * (1 + s%X(1)))  ! Ledd at infinity, so no T corrections
+            L_over_LEdd = Lrad(1)/LEdd
 
+            Lmax = s%x_ctrl(2)*LEdd
             L_rel_err = (Lrad(1) - Lmax)/Lmax
 
             if (abs(L_rel_err) .lt. 0.25) then
-               write(*,*) "Lrad/LEdd=", Lrad(1)/LEdd
+               write(*,*) "Lrad/LEdd=", L_over_LEdd
             end if
+            
+            ! Save some additional models getting close to Eddington
+            ! inquire(FILE="models/ns_env_0.5Edd.mod", EXIST=file_exists)
+            ! if (L_over_LEdd .gt. 0.5 .and. L_over_LEdd .lt. 0.51 .and. .not. file_exists) then
+            !    call star_write_model(s% id, "models/ns_env_0.5Edd.mod", ierr)
+            !    write(*, *) 'saved to models/ns_env_0.5Edd.mod'
+            ! end if
+            ! inquire(FILE="models/ns_env_0.6Edd.mod", EXIST=file_exists)
+            ! if (L_over_LEdd .gt. 0.6 .and. L_over_LEdd .lt. 0.61 .and. .not. file_exists) then
+            !    call star_write_model(s% id, "models/ns_env_0.6Edd.mod", ierr)
+            !    write(*, *) 'saved to models/ns_env_0.6Edd.mod'
+            ! end if
+            ! inquire(FILE="models/ns_env_0.7Edd.mod", EXIST=file_exists)
+            ! if (L_over_LEdd .gt. 0.7 .and. L_over_LEdd .lt. 0.71 .and. .not. file_exists) then
+            !    call star_write_model(s% id, "models/ns_env_0.7Edd.mod", ierr)
+            !    write(*, *) 'saved to models/ns_env_0.7Edd.mod'
+            ! end if
+            ! inquire(FILE="models/ns_env_0.8Edd.mod", EXIST=file_exists)
+            ! if (L_over_LEdd .gt. 0.8 .and. L_over_LEdd .lt. 0.81 .and. .not. file_exists) then
+            !    call star_write_model(s% id, "models/ns_env_0.8Edd.mod", ierr)
+            !    write(*, *) 'saved to models/ns_env_0.8Edd.mod'
+            ! end if
+            ! inquire(FILE="models/ns_env_0.9Edd.mod", EXIST=file_exists)
+            ! if (L_over_LEdd .gt. 0.9 .and. L_over_LEdd .lt. 0.91 .and. .not. file_exists) then
+            !    call star_write_model(s% id, "models/ns_env_0.9Edd.mod", ierr)
+            !    write(*, *) 'saved to models/ns_env_0.9Edd.mod'
+            ! end if
+            do percent_save = 50,90,10
+               frac_save = real(x)/100
+               write(frac_save_str,'(f4.2)') frac_save
+               save_model_filename = 'models/ns_env_'//trim(frac_save_str)//'Edd.mod'
+               inquire(FILE=save_model_filename, EXIST=file_exists)
+               if (L_over_LEdd .gt. frac_save .and. L_over_LEdd .lt. frac_save+0.01 .and. .not. file_exists) then
+                  call star_write_model(s% id, save_model_filename, ierr)
+                  write(*,*) 'saved to ', save_model_filename
+
+                  ! force a profile save
+                  s% need_to_save_profiles_now = .true.
+                  s% save_profiles_model_priority = 10
+               end if
+            end do
 
             if (abs(L_rel_err) .lt. rel_err_tol) then
                extras_check_model = terminate
@@ -176,26 +211,25 @@
                extras_check_model = redo
                s%dt = 0.5d0 * s%dt 
                write(*,*) "Above Eddington tolerance, redoing with 1/2 timestep (dt=", s%dt, ")"  
-            endif
+            end if
 
 
          else if (s% x_logical_ctrl(3)) then
             ! check if timestep has dropped below x_ctrl(3) (years)
             ! but only if star_age > x_ctrl(4) (seconds)
-            ! write(*,*) s%dt, s%dt/secyer
-            ! s%dt is in sec but s%star_age is in yrs!
+            ! **  s%dt is in sec but s%star_age is in yrs!
             if (s%dt/secyer < s%x_ctrl(3) .and. s%star_age*secyer > s%x_ctrl(4)) then
                extras_check_model = terminate
                s% termination_code = t_xtra3
                termination_code_str(t_xtra3) = 'Critical timestep reached!'
-            endif 
+            end if 
 
+
+         else if (s% x_logical_ctrl(4)) then
+            call smooth_outer_abundances(id)
 
          end if
 
-
-         ! indicate where MESA terminated
-         ! if (extras_check_model == terminate) s% termination_code = t_extras_check_model
       end function extras_check_model
 
 
@@ -229,7 +263,7 @@
          !          write(*,2) 'do_remove_surface (v3)', k, s%rho(k), density
                   ! write(*,*) 'do_remove_surface (v2) - model #',s%model_number,' - remove at index',k,' - density ',s% rho(k),' - cutoff ',density
          !          call do_remove_surface(id, k+1, ierr)
-         !       endif 
+         !       end if 
          !    end do
          ! end do
          ! return
@@ -250,6 +284,67 @@
          k = j_remove ! The cell to remove down to.
       end subroutine my_other_remove_surface
 
+
+      ! Smoothing abundance curves
+      ! This is copied code from star/private/adjust_mass.f90
+      ! But there it's only called if the mass changes, i.e. during accretion
+      ! Putting it here  so it can be called at will   
+      subroutine smooth_outer_abundances(id)
+         integer, intent(in) :: id
+         type (star_info), pointer :: s
+         integer :: ierr,j,k,m,l
+         real(dp) :: partial_xa_mass, region_total_mass, frac
+         
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+
+         if (s% smooth_outer_xa_big > 0.0d0 .and. s% smooth_outer_xa_small > 0.0d0) then
+            write(*,*) 'doing smooth_outer_abundance (run_star_extras)'
+            write(*,*) 'big: ', s% smooth_outer_xa_big, 'small: ', s% smooth_outer_xa_small
+            write(*,*) 'total mass: ', s% m(1)
+            write(*,*) 'f_big * m = ', s% smooth_outer_xa_big *s% m(1)
+            write(*,*) 'f_small * m = ', s% smooth_outer_xa_small *s% m(1)
+            write(*,*) ''
+            write(*,*) 'm and dm at indexes: 224, 238'
+            write(*,*) s%m(224), s%dm(224)
+            write(*,*) s%m(238), s%dm(238)
+            write(*,*) ''
+            m = 1
+            do k = 1, s% nz
+               if (s% m(1) - s% m(k) > s% smooth_outer_xa_big * s% m(1)) exit
+               region_total_mass = 0
+               m = k
+               do l = k, s% nz
+                  if (s% m(k) - s% m(l) > s% smooth_outer_xa_small * s% m(1) * &
+                     (1-(s% m(1) - s% m(k))/(s% smooth_outer_xa_big * s% m(1)))) exit
+                  m = l
+                  region_total_mass = region_total_mass + s% dm(l)
+               end do
+               write(*,*) "region_total_mass: ", region_total_mass
+               write(*,*) "k,m : ", k, m
+               write(*,*) ""
+               if (m == k) cycle
+               do j=1,s% species
+                  partial_xa_mass = 0
+                  do l = k, m
+                     partial_xa_mass = partial_xa_mass + s% dm(l) * s% xa(j,l)
+                  end do
+                  do l = k, m
+                     s% xa(j,l) = partial_xa_mass / region_total_mass
+                  end do
+               end do
+            end do
+            ! fix small errors to ensure xa's add up to unity
+            do k=1,m
+               frac = 1d0/sum(s% xa(1:s% species,k))
+               do j=1,s% species
+                  s% xa(j,k) = s% xa(j,k)*frac
+               end do
+            end do
+            ! call star_write_model(s% id, "models/foo.mod", ierr)
+         end if
+      end subroutine smooth_outer_abundances
 
 
       subroutine my_other_kap_get( &
@@ -546,15 +641,24 @@
          integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
+         real(dp) :: seconds_save_profile, f
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_finish_step = keep_going
 
-         ! to save a profile, 
-            ! s% need_to_save_profiles_now = .true.
-         ! to update the star log,
-            ! s% need_to_update_history_now = .true.
+         
+         seconds_save_profile = s% x_ctrl(7)
+         s% xtra(1) = s% star_age*secyer
+
+         f = 1/seconds_save_profile
+
+         ! Evaluates to true if f times the age in seconds has crossed an integer
+         ! For instance if x_ctrl(7) = 0.1, then f=10 and we will save at star_age = (0.1,0.2,0.3,...)
+         if (floor(f * s% xtra(1)) - floor(f * s% xtra_old(1)) .ne. 0) then
+            s% need_to_save_profiles_now = .true.
+            s% save_profiles_model_priority = 10
+         end if
 
          ! see extras_check_model for information about custom termination codes
          ! by default, indicate where (in the code) MESA terminated

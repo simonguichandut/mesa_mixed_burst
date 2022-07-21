@@ -31,7 +31,7 @@
 
   !! Enable custom routine for removing shells below minimum density
   use_other_remove_surface = .true. ! see run_star_extras
-  x_ctrl(5) = 1d-8 ! minimum density threshold
+  x_ctrl(5) = 1d-7 ! minimum density threshold
   x_ctrl(6) = 1d0 ! stop searching beyond this density
 
   !! Wind only develops if energy_eqn = eps_grav. Otherwise outer grid cell just cools down forever while staying at the same density

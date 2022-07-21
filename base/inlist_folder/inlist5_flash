@@ -3,7 +3,7 @@
 &star_job    
 
   saved_model_name = 'models/ns_env_ignited.mod'
-  save_model_filename = 'models/ns_env_Edd.mod'
+  save_model_filename = 'models/ns_env_Edd.mod' ! I say Edd but this might be 0.9*LEdd, depending on the value of x_ctrl(2) below
   write_profile_when_terminate = .true.
   filename_for_profile_when_terminate = 'LOGS/final.data'
 

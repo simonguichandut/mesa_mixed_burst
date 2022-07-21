@@ -12,7 +12,7 @@
 
 
 ## Single run
-RUN_DIR=J3
+RUN_DIR=P1b
 
 ## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
@@ -28,8 +28,8 @@ START=5
 STOP=5
 
 ## Is it a restart?
-RESTART=false
-RESTART_PHOTO=photos/7_wind/x500 # (path from run directory)
+RESTART=true
+RESTART_PHOTO=photos/5_flash_to_1.0Edd/1000 # (path from run directory)
 
 #--------------------------------------------------------------------------------------------------
 
@@ -59,6 +59,7 @@ save_logs () {
 save_photos () {
     mkdir -p photos/$1
     mv photos/*000 photos/$1
+    mv photos/x500 photos/$1
 }
 
 clean_outputs () {
@@ -122,7 +123,7 @@ k_method=`cat k_to_remove_method`
 if [ "$RESTART" = true ] ; then
     cp $RESTART_PHOTO restart_photo # star will recognize this filename
 
-    # Change previous filenames
+    # Change previous filenames and directories
     # won't work for more than 2 restarts
     old_name=terminal_outputs/${inlists[$START-1]}.txt
     new_name=terminal_outputs/${inlists[$START-1]}_old.txt
@@ -130,6 +131,14 @@ if [ "$RESTART" = true ] ; then
 
     old_name=movies/pgstar_${inlists[$START-1]}.mp4
     new_name=movies/pgstar_${inlists[$START-1]}_old.mp4
+    mv $old_name $new_name 
+
+    old_name=LOGS/${inlists[$START-1]}
+    new_name=LOGS/${inlists[$START-1]}_old
+    mv $old_name $new_name 
+
+    old_name=photos/${inlists[$START-1]}
+    new_name=photos/${inlists[$START-1]}_old
     mv $old_name $new_name 
 
 fi
@@ -153,6 +162,9 @@ for inlist in ${inlists[@]}; do
         fi
 
         run_one $inlist
+
+        rm -f restart_photo  # if there was a restart (can only be at the first inlist), the photo now needs to be deleted
+
     fi
     if [ $n -eq "$STOP" ] ; then
         break
@@ -162,31 +174,21 @@ for inlist in ${inlists[@]}; do
     n=$(($n+1))
 done
 
-# Move logs to scratch space
-#mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
-#mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
-#mv photos/* $SCRATCH/$RUN_DIR/photos/
 
 # Make lightcurve and movies
-#LOG_DIR=$SCRATCH/$RUN_DIR/LOGS
-LOG_DIR=LOGS
+#LOG_DIR=LOGS
 
 # Lightcurve and profile movies
 #python $PYTHON/make_light_curve.py -q -L $LOG_DIR/5_flash/ $LOG_DIR/7_wind $LOG_DIR/8_fallback/ -F ./lightcurve.pdf
 #blank_lines
-#python $PYTHON/make_movies.py $LOG_DIR/4_accrete/ movies/nucmovie_4_accrete.mp4
-python $PYTHON/make_movies.py $LOG_DIR/5_flash/ movies/nucmovie_5_flash.mp4
-#python $PYTHON/make_movies.py $LOG_DIR/7_wind/ movies/nucmovie_7_wind.mp4
+#python $PYTHON/make_movies.py -dir . -L 4_accrete -m nuc_movie -o nucmovie_4_accrete.mp4
+python $PYTHON/make_movies.py -dir . -L 5_flash -m nuc_movie -o nucmovie_5_flash.mp4
 
+# Kippenhan
+#python $PYTHON/analyze_convection.py -dir .
 
 # Clean-up
 rm inlist
-# # Move files to scratch if run completed succesfully
-# if filetype_exists LOGS/8_fallback/*.data ; then # better criteria?
-#     mkdir -p $SCRATCH/$RUN_DIR/{LOGS,photos}
-#     mv LOGS/* $SCRATCH/$RUN_DIR/LOGS/
-#     mv photos/* $SCRATCH/$RUN_DIR/photos/
-# fi
 rm -r png
 rm -r .mesa_temp_cache
 
