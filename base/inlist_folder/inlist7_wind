@@ -53,7 +53,6 @@
   !$ ! MLT_option = 'Henyey'
   !$ ! use_Ledoux_criterion = .false.  
 
-
   !! Turn off net
   !$ max_abar_for_burning = -1
   
@@ -79,6 +78,9 @@
   photo_interval = 500
   profile_interval = 50
   max_num_profile_models = 120
+
+  !! Force a high priority profile save at every x_ctrl(7) seconds
+  x_ctrl(7) = 0.1d0
  
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
