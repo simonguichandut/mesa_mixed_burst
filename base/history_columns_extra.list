@@ -12,8 +12,8 @@
    
    ! mixing and burning regions
    
-      mixing_regions 40
-      burning_regions 40
+      !mixing_regions 40
+      burning_regions 50
       
    ! conditions near surface
    

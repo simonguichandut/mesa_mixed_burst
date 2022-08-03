@@ -162,32 +162,6 @@
                write(*,*) "Lrad/LEdd=", L_over_LEdd
             end if
             
-            ! Save some additional models getting close to Eddington
-            ! inquire(FILE="models/ns_env_0.5Edd.mod", EXIST=file_exists)
-            ! if (L_over_LEdd .gt. 0.5 .and. L_over_LEdd .lt. 0.51 .and. .not. file_exists) then
-            !    call star_write_model(s% id, "models/ns_env_0.5Edd.mod", ierr)
-            !    write(*, *) 'saved to models/ns_env_0.5Edd.mod'
-            ! end if
-            ! inquire(FILE="models/ns_env_0.6Edd.mod", EXIST=file_exists)
-            ! if (L_over_LEdd .gt. 0.6 .and. L_over_LEdd .lt. 0.61 .and. .not. file_exists) then
-            !    call star_write_model(s% id, "models/ns_env_0.6Edd.mod", ierr)
-            !    write(*, *) 'saved to models/ns_env_0.6Edd.mod'
-            ! end if
-            ! inquire(FILE="models/ns_env_0.7Edd.mod", EXIST=file_exists)
-            ! if (L_over_LEdd .gt. 0.7 .and. L_over_LEdd .lt. 0.71 .and. .not. file_exists) then
-            !    call star_write_model(s% id, "models/ns_env_0.7Edd.mod", ierr)
-            !    write(*, *) 'saved to models/ns_env_0.7Edd.mod'
-            ! end if
-            ! inquire(FILE="models/ns_env_0.8Edd.mod", EXIST=file_exists)
-            ! if (L_over_LEdd .gt. 0.8 .and. L_over_LEdd .lt. 0.81 .and. .not. file_exists) then
-            !    call star_write_model(s% id, "models/ns_env_0.8Edd.mod", ierr)
-            !    write(*, *) 'saved to models/ns_env_0.8Edd.mod'
-            ! end if
-            ! inquire(FILE="models/ns_env_0.9Edd.mod", EXIST=file_exists)
-            ! if (L_over_LEdd .gt. 0.9 .and. L_over_LEdd .lt. 0.91 .and. .not. file_exists) then
-            !    call star_write_model(s% id, "models/ns_env_0.9Edd.mod", ierr)
-            !    write(*, *) 'saved to models/ns_env_0.9Edd.mod'
-            ! end if
             do percent_save = 50,90,10
                frac_save = real(x)/100
                write(frac_save_str,'(f4.2)') frac_save
@@ -254,21 +228,6 @@
          min_density = s%x_ctrl(5)
          
          ! remove everything below any point that goes below minimum density
-
-         ! This does not work
-         ! do while(minval(s%rho) < density)
-         !    ! write(*,*) 'min rho = ', minval(s%rho)
-         !    do k=1, s%nz
-         !       if (s%rho(k) < density) then
-         !          write(*,2) 'do_remove_surface (v3)', k, s%rho(k), density
-                  ! write(*,*) 'do_remove_surface (v2) - model #',s%model_number,' - remove at index',k,' - density ',s% rho(k),' - cutoff ',density
-         !          call do_remove_surface(id, k+1, ierr)
-         !       end if 
-         !    end do
-         ! end do
-         ! return
-
-         ! Make it so that do_remove_surface is only called once
          if (minval(s%rho, mask=s%rho>0) > min_density) return
          do j=1, s%nz
             if (s%rho(j) < min_density) then
@@ -447,7 +406,8 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         how_many_extra_history_columns = 3
+         how_many_extra_history_columns = 1
+         ! how_many_extra_history_columns = 3
       end function how_many_extra_history_columns
       
       
@@ -501,42 +461,36 @@
 
 
          !! Number of mixing regions
-         names(2) = "N_mix_regions"
+         ! names(2) = "N_mix_regions"
 
-         ! Following star/private/hisory.f90 
-
-         ! This would be great but I'm not able to import this function..
-         !call count_regions(s% mixing_type, cnt, min_ktop, min_kbot) !we only care about cnt
-         !vals(2) = cnt
-
-         ! But it's actually simple enough
-         cnt = 1
-         cur_type = s% mixing_type(s% nz)
-         do k = s% nz -1 ,1,-1
-            if (cur_type == s% mixing_type(k)) cycle ! cycle means skip the next lines in the loop and start again
-            cur_type = s% mixing_type(k)
-            cnt = cnt+1
-         end do
-         vals(2) = cnt
+         ! ! Following star/private/hisory.f90 
+         ! cnt = 1
+         ! cur_type = s% mixing_type(s% nz)
+         ! do k = s% nz -1 ,1,-1
+         !    if (cur_type == s% mixing_type(k)) cycle ! cycle means skip the next lines in the loop and start again
+         !    cur_type = s% mixing_type(k)
+         !    cnt = cnt+1
+         ! end do
+         ! vals(2) = cnt
 
 
-         !! Number of burning regions
-         names(3) = "N_burn_regions"
+         ! !! Number of burning regions
+         ! names(3) = "N_burn_regions"
          
-         ! Same thing. Def of burn_type from set_burn_types() in history.f90
-         allocate(burn_type(s% nz))
-         do k=1,s% nz
-            bb = s% eps_nuc(k) - s% non_nuc_neu(k)
-            burn_type(k) = int(sign(1d0,bb)*max(0d0,1d0+safe_log10(abs(bb))))
-         end do
-         cnt = 1
-         cur_type = burn_type(s% nz)
-         do k = s% nz -1 ,1,-1
-            if (cur_type == burn_type(k)) cycle
-            cur_type = burn_type(k)
-            cnt = cnt+1
-         end do
-         vals(3) = cnt
+         ! ! Same thing. Def of burn_type from set_burn_types() in history.f90
+         ! allocate(burn_type(s% nz))
+         ! do k=1,s% nz
+         !    bb = s% eps_nuc(k) - s% non_nuc_neu(k)
+         !    burn_type(k) = int(sign(1d0,bb)*max(0d0,1d0+safe_log10(abs(bb))))
+         ! end do
+         ! cnt = 1
+         ! cur_type = burn_type(s% nz)
+         ! do k = s% nz -1 ,1,-1
+         !    if (cur_type == burn_type(k)) cycle
+         !    cur_type = burn_type(k)
+         !    cnt = cnt+1
+         ! end do
+         ! vals(3) = cnt
 
       end subroutine data_for_extra_history_columns
 
@@ -642,12 +596,13 @@
          integer :: ierr
          type (star_info), pointer :: s
          real(dp) :: seconds_save_profile, f
+         logical :: do_mixing_history
+         integer :: mixing_history_interval
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_finish_step = keep_going
-
-         
+   
          seconds_save_profile = s% x_ctrl(7)
          s% xtra(1) = s% star_age*secyer
 
@@ -658,6 +613,12 @@
          if (floor(f * s% xtra(1)) - floor(f * s% xtra_old(1)) .ne. 0) then
             s% need_to_save_profiles_now = .true.
             s% save_profiles_model_priority = 10
+         end if
+
+         do_mixing_history = s% x_logical_ctrl(10)
+         mixing_history_interval = s% x_integer_ctrl(10)
+         if (do_mixing_history .and. mod(s% model_number, mixing_history_interval) .eq. 0) then
+            call write_mixing_zones_history_file(id)
          end if
 
          ! see extras_check_model for information about custom termination codes
@@ -674,6 +635,76 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
       end subroutine extras_after_evolve
+
+      
+      ! The issue with the existing way to output a history of the locations of mixing regions is that you cannot know in advance the number of mixing regions
+      ! Too small a number won't be reported either. In these simulations, convective zones can break up into many (hundreds!) of tiny convective zones, hence 
+      ! the need for this function, which generates a separate history file which will output the location of every single mixing region when called (as well 
+      ! as the model number and star age). The structure is the same as in the original history file, first column is mix_type, second is mix_qtop, then next region and so on..
+      ! Also write column depth instead of q for the mass coordinate of the top of the region
+      subroutine write_mixing_zones_history_file(id)
+         integer, intent(in) :: id
+         type (star_info), pointer :: s
+         integer :: ierr,io,nz,k,cur_type
+         real(dp) :: ytop
+         character (len=strlen) :: fname, dbl_fmt, int_fmt, txt_fmt
+         logical :: file_exists, write_header
+         
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+
+         dbl_fmt = s% star_history_dbl_format
+         int_fmt = s% star_history_int_format
+         txt_fmt = s% star_history_txt_format
+
+         fname = trim(s %log_directory) // '/mixing_history.data'
+         inquire(FILE=fname, EXIST=file_exists)
+         if (.not. file_exists) then
+            open(newunit=io, file=trim(fname), action='write', iostat=ierr)
+            write_header = .true.
+         else
+            open(newunit=io, file=trim(fname), action='write', position='append', iostat=ierr)
+            write_header = .false.
+         endif
+
+         if (ierr /= 0) then
+            write(*,*) 'failed to open ' // trim(fname)
+            return
+         end if
+
+         if (write_header) then            
+            write(io, fmt=txt_fmt, advance='no') 'model_number'
+            write(io, fmt=txt_fmt, advance='no') 'star_age'
+            write(io, fmt=txt_fmt, advance='no') 'lgybot'
+            write(io, fmt=txt_fmt, advance='no') 'mix type 1'
+            write(io, fmt=txt_fmt, advance='no') 'lgytop 1'
+            write(io, fmt=txt_fmt, advance='no') 'mix type 2'
+            write(io, fmt=txt_fmt, advance='no') 'lgytop 2'
+            write(io, fmt=txt_fmt, advance='no') '...->'
+            write(io,*)
+         end if
+
+         write(io, fmt=int_fmt, advance='no') s% model_number
+         write(io, fmt=dbl_fmt, advance='no') s% star_age
+         nz = s% nz
+         write(io, fmt=dbl_fmt, advance='no') safe_log10(s% xmstar*sum(s% dq(1:nz))/(4*pi*s% r(nz)*s% r(nz)))
+
+         ! Loop
+         cur_type = s% mixing_type(nz)
+         do k=nz-1,1,-1
+            if (cur_type == s% mixing_type(k)) cycle
+            write(io, fmt=int_fmt, advance='no') cur_type
+            write(io, fmt=dbl_fmt, advance='no') safe_log10(s% xmstar*sum(s% dq(1:k-1))/(4*pi*s% r(k)*s% r(k)))
+            cur_type = s% mixing_type(k)
+         end do
+         write(io, fmt=int_fmt, advance='no') cur_type  ! The last entry is the convective type that goes to the top of the grid
+         write(io,*)
+
+         close(io)
+
+      end subroutine write_mixing_zones_history_file
+
 
       end module run_star_extras
       

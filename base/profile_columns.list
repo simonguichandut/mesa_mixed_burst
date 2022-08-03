@@ -24,6 +24,7 @@
    luminosity ! luminosity at outer boundary of zone (in Lsun units)
    log_Lrad
    log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
+   conv_L_div_L
 
    mu ! mean molecular weight per gas particle (ions + free electrons)
    eta ! electron degeneracy parameter (eta >> 1 for significant degeneracy)
@@ -63,6 +64,7 @@
    eps_nuc ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
    add_reaction_categories ! this adds all the reaction categories
    eps_nuc_neu_total ! erg/gm/sec as neutrinos from nuclear reactions
+   non_nuc_neu ! non-nuclear-reaction neutrino losses
 
 
 

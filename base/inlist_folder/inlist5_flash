@@ -66,6 +66,12 @@
   photo_interval = 500
   profile_interval = 20
   max_num_profile_models = 500
+
+  !! Special file for history of mixing zones
+  ! Includes every zone, not just a fixed number as in history_columns.list
+  ! See run_star_extras
+  x_logical_ctrl(10) = .true.
+  x_integer_ctrl(10) = 1 ! interval for saving mixing history
   
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.

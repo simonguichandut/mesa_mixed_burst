@@ -70,8 +70,6 @@ def make_nuc_movie(log_dir, movie_filename):
     for i, prof_number in enumerate(index.profile_numbers):
         data = mr.MesaData(filename(prof_number))
 
-        if i==0: t0=data.star_age
-
         if max(data.T)>Tmax: Tmax=max(data.T)
         if max(data.eps_nuc)>eps_max: eps_max=max(data.eps_nuc)
         if max(data.eps_nuc_neu_total)>eps_neu_max: eps_neu_max=max(data.eps_nuc_neu_total)
@@ -148,15 +146,15 @@ def make_nuc_movie(log_dir, movie_filename):
 
     def update(frame):
         data = mr.MesaData(filename(frame))
-        time = (data.star_age-t0)*yr
+        time = data.star_age*yr
         if time < 60:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time:.3e} s --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t = {time:.3e} s --- dt = {data.time_step*yr:.1e} s")
         elif time < 3600:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/3600:.3e} h --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t = {time/3600:.3e} h --- dt = {data.time_step*yr:.1e} s")
         elif time < day:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/day:.3e} days --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t = {time/day:.3e} days --- dt = {data.time_step*yr:.1e} s")
         else:
-            fig.suptitle(f"Model \#{data.model_number} --- t-t$_0$ = {time/yr:.3e} years --- dt = {data.time_step*yr:.1e} s")
+            fig.suptitle(f"Model \#{data.model_number} --- t = {time/yr:.3e} years --- dt = {data.time_step*yr:.1e} s")
 
         column = data.column_depth
         T = data.T 
@@ -329,11 +327,101 @@ def make_conv_movie(log_dir, movie_filename):
 
 
 
+def make_wind_movie(log_dir, movie_filename):
+
+    index = mr.MesaProfileIndex(log_dir+"profiles.index")
+    filename = lambda n: log_dir+"profile%d.data"%n
+    
+    # profile_list = index.profile_numbers
+    profile_list = []
+    for n in index.profile_numbers:
+        if os.path.exists(filename(n)):
+            profile_list.append(n)
+    num_profiles = len(profile_list)
+
+    print(f"Making movie using {num_profiles} log files in {log_dir}")
+
+    # Check if there is burning
+    prof1 = mr.MesaData(filename(1))
+    burning = False
+    if max(prof1.eps_nuc)>0:
+        burning = True
+    
+    # Panels: rho,T,L,mu,v. if burning: eps_nuc
+    if burning:
+        fig,axes = plt.subplots(6,1,figsize=(6,15),sharex=True)
+    else:
+        fig,axes = plt.subplots(5,1,figsize=(6,15),sharex=True) 
+    fig.subplots_adjust(hspace=0.08)
+
+    axes[-1].set_xlabel(r"$r$ (km)")
+    axes[0].set_ylabel(r"$T$ (K)")
+    axes[1].set_ylabel(r"$\rho$ (g cm$^{-3}$)")
+    axes[2].set_ylabel(r"$L$ (erg s$^{-1}$)")
+    axes[3].set_ylabel(r"$v$ (cm s$^{-1}$)")
+    axes[4].set_ylabel(r"$\mu$")
+    if burning: axes[5].set_ylabel(r"$\epsilon_{\rm nuc}$ (erg g$^{-1}$ s$^{-1}$)")
+
+    def init_func():
+        artists=[]
+        for ax in axes:
+            line, = ax.plot([],[],'k-')
+            rph_pt, = ax.plot([],[],'k.',ms=7,mec='b')
+            rs_pt, = ax.plot([],[],'kx',ms=7,mec='r')
+            artists.extend((line,rph_pt,rs_pt))
+
+            ax.set_xscale('log')
+            ax.set_xlim([10,5e2])
+            ax.set_yscale('log')
+        
+        axes[0].set_ylim([1e6,1e9])
+        axes[1].set_ylim([1e-8,1e0])
+        axes[2].set_ylim([1e37,1e39])
+        axes[3].set_ylim([1e5,3e9])
+        axes[4].set_yscale('linear')
+        axes[4].set_ylim([0.5,2.1])
+        axes[5].set_ylim([1e5,1e20])
+
+        return artists
+
+    artists=init_func()
+
+    def func_plot(prof_number):
+        prof = mr.MesaData(filename(prof_number))
+        fig.suptitle(f"Model \#{prof.model_number} --- t-t$_0$ = {prof.star_age*yr:.1e} s --- dt = {prof.time_step*yr:.1e} s", y=0.9)
+
+        r,T,rho,L,v,mu,eps = prof.R_cm,prof.T,prof.Rho,prof.luminosity,prof.velocity,prof.mu,prof.eps_nuc
+        r /= 1e5
+        L *= Lsun
+
+        cs = np.sqrt(kB*T/mu/mp)
+        isonic = np.argmin(abs(v-cs))
+        iphot = np.argmin(abs(L/(4*np.pi*(r*1e5)**2) - sigmarad*T**4))
+
+        ydata = [T,rho,L,v,mu]
+        if burning: ydata.append(eps)
+
+        for i,y in enumerate(ydata):
+            artists[3*i].set_data(r, y)
+            artists[3*i+1].set_data(r[iphot], y[iphot])
+            artists[3*i+2].set_data(r[isonic], y[isonic])
+
+        return artists
+
+
+    anim = FuncAnimation(fig, func_plot, init_func=init_func, frames=profile_list, blit=True)
+    writervideo = FFMpegWriter(fps=30)
+    anim.save(movie_filename, writer=writervideo)
+    print("\nSaved to ",movie_filename)
+    
+
+    
+
 # Command line call
 parser = argparse.ArgumentParser(description="Analyze convection")
 parser.add_argument('-dir','--rundir', type=str, help='run directory', default=None)
 parser.add_argument('-L','--logdir', type=str, help='log directory (withing run_dir/LOGS/', default=None)
-parser.add_argument('-m','--movie', type=str, help='movie function (nuc, conv)', default=None)
+parser.add_argument('-m','--movie', type=str, help='movie function (nuc, conv, wind)', default=None)
 parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run_dir/movies)', default='movie.mp4')
 
 
@@ -361,6 +449,9 @@ if __name__ == "__main__":
 
     elif args.movie in ('conv','conv_movie','convection'):
         make_conv_movie(full_log_dir, movie_filename)
+
+    elif args.movie in ('wind','wind_movie'):
+        make_wind_movie(full_log_dir, movie_filename)
 
     else:
         print("Unknown movie function ", args.movie)

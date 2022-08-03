@@ -1,18 +1,20 @@
 #!/bin/bash
+###SBATCH -t 01:00:00
 #SBATCH -t 10:00:00
-##SBATCH -t 01:00:00
+###SBATCH -t 50:00:00
 #SBATCH --account=def-cumming
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
-##SBATCH --mem=4G
+###SBATCH --mem=4G
 #SBATCH --mem=8G
+###SBATCH --mem=16G
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simon.guichandut@mail.mcgill.ca
-##SBATCH --array=1,2
+###SBATCH --array=1,2
 
 
 ## Single run
-RUN_DIR=P1b
+RUN_DIR=P1
 
 ## Parallel run
 # --array option needs to be turned on. Numbers refer to the line number in the file 
@@ -28,8 +30,8 @@ START=5
 STOP=5
 
 ## Is it a restart?
-RESTART=true
-RESTART_PHOTO=photos/5_flash_to_1.0Edd/1000 # (path from run directory)
+RESTART=false
+RESTART_PHOTO=photos/7_wind_from_0.7Edd_burning_smooth_v3/last_photo_x824 # (path from run directory)
 
 #--------------------------------------------------------------------------------------------------
 
@@ -56,10 +58,16 @@ save_logs () {
    mv LOGS/{*.dat*,*.index} LOGS/$1
 }
 
+most_recent_photo () {
+    ls -tp photos | grep -v / | head -1
+}
+
 save_photos () {
     mkdir -p photos/$1
     mv photos/*000 photos/$1
     mv photos/x500 photos/$1
+    most_recent_photo=$(ls -tp photos | grep -v / | head -1)
+    mv photos/$most_recent_photo photos/$1/last_photo_$most_recent_photo
 }
 
 clean_outputs () {
@@ -182,7 +190,7 @@ done
 #python $PYTHON/make_light_curve.py -q -L $LOG_DIR/5_flash/ $LOG_DIR/7_wind $LOG_DIR/8_fallback/ -F ./lightcurve.pdf
 #blank_lines
 #python $PYTHON/make_movies.py -dir . -L 4_accrete -m nuc_movie -o nucmovie_4_accrete.mp4
-python $PYTHON/make_movies.py -dir . -L 5_flash -m nuc_movie -o nucmovie_5_flash.mp4
+#python $PYTHON/make_movies.py -dir . -L 5_flash -m nuc_movie -o nucmovie_5_flash.mp4
 
 # Kippenhan
 #python $PYTHON/analyze_convection.py -dir .

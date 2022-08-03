@@ -8,7 +8,7 @@ locs=()
 IFS=''
 
 while read line; do
-    if [[ "$line" == *" extra_star"* ]] || [[ "$line" == *" extra_controls"* ]]; then
+    if [[ "$line" == *" extra_star"* ]] || [[ "$line" == *" extra_controls"* ]] || [[ "$line" == *" extra_pgstar"* ]] ; then
         locs+=( $counter )
     fi
     let counter+=1
