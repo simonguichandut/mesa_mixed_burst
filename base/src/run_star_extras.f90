@@ -163,7 +163,7 @@
             end if
             
             do percent_save = 50,90,10
-               frac_save = real(x)/100
+               frac_save = real(percent_save)/100
                write(frac_save_str,'(f4.2)') frac_save
                save_model_filename = 'models/ns_env_'//trim(frac_save_str)//'Edd.mod'
                inquire(FILE=save_model_filename, EXIST=file_exists)
@@ -617,8 +617,10 @@
 
          do_mixing_history = s% x_logical_ctrl(10)
          mixing_history_interval = s% x_integer_ctrl(10)
-         if (do_mixing_history .and. mod(s% model_number, mixing_history_interval) .eq. 0) then
-            call write_mixing_zones_history_file(id)
+         if (do_mixing_history) then
+            if (mod(s% model_number, mixing_history_interval) .eq. 0) then
+               call write_mixing_zones_history_file(id)
+            end if
          end if
 
          ! see extras_check_model for information about custom termination codes

@@ -67,7 +67,7 @@ def get_most_abundant_isotope(data):
     isotope_list = get_isotope_list()
     isotopes_present = [iso for iso in isotope_list if (data.in_data(iso) and max(data.bulk_data[iso])>1e-3)]
     most = []
-    for i in range(len(data.d)):
+    for i in range(len(data.bulk_data)):
         abundances = [data.bulk_data[iso][i] for iso in isotopes_present]
         most.append(isotopes_present[abundances.index(max(abundances))])
         #print(data.d[i],most[-1])
@@ -96,3 +96,47 @@ def get_zones(L):
             else: # create new zone
                 dic[s].append([i-1,i])
     return dic
+
+
+def set_size(width, fraction=1):
+    """ Set aesthetic figure dimensions to avoid scaling in latex.
+
+    Parameters
+    ----------
+    width: float
+            Width in pts
+    fraction: float
+            Fraction of the width which you wish the figure to occupy
+
+    Returns
+    -------
+    fig_dim: tuple
+            Dimensions of figure in inches
+    """
+    if width == 'thesis':
+        width_pt = 426.79135
+    elif width == 'beamer':
+        width_pt = 307.28987
+    elif width == 'mnras2col':
+        width_pt = 240
+    elif width == 'mnras1col':
+        width_pt = 504
+    else:
+        width_pt = width
+    # Width of figure
+    fig_width_pt = width_pt * fraction
+
+    # Convert from pt to inches
+    inches_per_pt = 1 / 72.27
+
+    # Golden ratio to set aesthetic figure height
+    golden_ratio = (5**.5 - 1) / 2
+
+    # Figure width in inches
+    fig_width_in = fig_width_pt * inches_per_pt
+    # Figure height in inches
+    fig_height_in = fig_width_in * golden_ratio
+
+    fig_dim = (fig_width_in, fig_height_in)
+
+    return fig_dim
