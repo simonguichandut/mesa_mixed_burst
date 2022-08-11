@@ -414,7 +414,7 @@
          subroutine setup_column_yaxis
             real :: dy, ymin, ymax
             ymax = s% Kipp_column_max 
-            if (ymax <= 0) ymax = 11 ! arbitrary for now
+            if (ymax <= 0) ymax = 11 ! arbitrary maximum column to show
             ymin = s% Kipp_column_min
             if (ymin <= 0) ymin = 1 
             if (ymax <= ymin) ymax = ymin+1

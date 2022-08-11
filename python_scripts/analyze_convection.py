@@ -1,17 +1,28 @@
 from utils import *
 
+# name, color, hatch style (symbols repeated to make them appear smaller in the plot)
+mixing_styles = {1:('conv', 'g', '//////'), 
+                2:('over', 'm', '******'), 
+                3:('semi', 'c', 'xxxxxxxxx'), 
+                4:('th',   'y', '+++++++'), 
+                5:('rot',  'k', '\\\\\\'), 
+                6:('rt',   'k', '\\\\\\'), 
+                7:('min',  'k', '\\\\\\'), 
+                8:('left', 'k', '\\\\\\')} 
+
+# Since coordinates in history files are M/Mstar (q), need to calculate column depth knowing
+# mass and radius of the original star.
+Mcenter = 1.4 # Msun
+Rcenter = 1.2e6 #cm 
+def y(m,q):
+    # Assuming radius to be ~cst, ok in hydrostatic phase
+    # m in Msun units
+    return (m-Mcenter)*Msun*(1-q)/(4*np.pi*Rcenter**2)
+
+
 def get_burn_mix_matrix_from_history_fixed_lgy(hist, lgy_arr):
     # assuming history MesaData object with burn_regions and mixing_regions columns (same number)
     # will interpolate onto the column depth array lgy_arr
-
-    # since coordinates are M/Mstar, need to calculate column depth knowing
-    # mass and radius of the original star.
-    Mcenter = 1.4 # Msun
-    Rcenter = 1.2e6 #cm 
-    def y(m,q):
-        # Assuming radius to be ~cst, ok in hydrostatic phase
-        # m in Msun units
-        return (m-Mcenter)*Msun*(1-q)/(4*np.pi*Rcenter**2)
 
     # How many models, zones
     Nmod = len(hist.model_number)
@@ -265,33 +276,6 @@ def get_burn_mix_matrix_from_history_dynamic_lgy(hist):
     return lgy_mat_burn,burn,lgy_mat_mix,mix
 
 
-
-
-def get_burn_mix_matrix_from_profiles(log_dir, lgy_arr):
-    # will interpolate onto the column depth array lgy_arr
-
-    index = mr.MesaProfileIndex(log_dir+"profiles.index")
-
-    # How many models, zones
-    Nprof = len(index.profile_numbers)
-
-    # filename structure
-    filename = lambda n: log_dir+"profile%d.data"%n
-
-    # Initialize
-    burn = np.zeros((Nprof, len(lgy_arr)))   
-    mix = np.copy(burn)
-
-    # Go through each profile
-
-    for i, prof_number in enumerate(index.profile_numbers):
-        data = mr.MesaData(filename(prof_number))
-
-    return burn,mix
-
-
-
-
 def plot_kippenhan(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn=True, show_mix=True, show_luminosity=True, show_num_zones=False, show_time_steps=False):
 
     ax.set_ylabel(r"log column depth (g cm$^{-2}$)")
@@ -395,31 +379,22 @@ def plot_kippenhan(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn=True, s
             haxes.append(hax)
             # next one is moved to the right
             hax_left += hax_w
-
-        mixing_types = {1:('conv', 'g', '//////'), # repeat symbol to make them appear smaller in the plot
-                        2:('over', 'm', '******'), 
-                        3:('semi', 'c', 'xxxxxxxxx'), 
-                        4:('th',   'y', '+++++++'), 
-                        5:('rot',  'k', '\\\\\\'), 
-                        6:('rt',   'k', '\\\\\\'), 
-                        7:('min',  'k', '\\\\\\'), 
-                        8:('left', 'k', '\\\\\\')} 
      
         for i,mi in enumerate(mix_types):
             mask = mix!=mi
             Xm = np.ma.MaskedArray(X, mask)
             Ym = np.ma.MaskedArray(Ymix, mask)
             Zm = np.ma.MaskedArray(mix, mask)
-            img = ax.contourf(Xm,Ym,Zm,[mi-1,mi+1], colors='none', hatches=[mixing_types[mi][2], None])
-     
+
+            img = ax.contourf(Xm,Ym,Zm,[mi-1,mi+1], colors='none', hatches=[mixing_styles[mi][2], None])
             # Set the hatch color https://github.com/matplotlib/matplotlib/issues/2789/#issuecomment-604599060
             for coll in img.collections:
-                coll.set_edgecolor(mixing_types[mi][1])
+                coll.set_edgecolor(mixing_styles[mi][1])
                 coll.set_linewidth(0.05)
-
+            
             hax = haxes[i]
-            hax.set_title(mixing_types[mi][0], pad=1)
-            hax.add_patch(mpl.patches.Rectangle((0, 0), 2, 2, fill=False, hatch=mixing_types[mi][2], edgecolor=mixing_types[mi][1]))
+            hax.set_title(mixing_styles[mi][0], pad=1)
+            hax.add_patch(mpl.patches.Rectangle((0, 0), 2, 2, fill=False, hatch=mixing_styles[mi][2], edgecolor=mixing_styles[mi][1]))
 
     ax.invert_yaxis()
     axes = [ax, cbax]
@@ -455,6 +430,61 @@ def plot_kippenhan(fig, ax, cbax, hist, lgy, xaxis="star_age", show_burn=True, s
             line.set_linewidth(1.0)
 
     return axes
+
+
+
+def plot_mixing_zone_as_lines(fig, ax, hist, xaxis='star_age'):
+
+    n=1
+    while True:
+        if not hist.in_data("mix_type_%d"%n):
+            break
+        n+=1
+    N_zones = n-1
+
+    mix_types = []
+
+    for i in range(len(hist.model_number)):
+
+        if xaxis=='star_age':
+            x = hist.star_age[i]*yr
+        elif xaxis=='model_number':
+            x=hist.model_number[i]
+                
+        # current total star mass
+        m = hist.star_mass[i]
+        ybot = y(m,0) # total column depth of envelope
+
+        ybounds = [ybot] + [y(m, hist.data('mix_qtop_%d'%(n+1))[i]) for n in range(N_zones)]
+        lgybounds = np.log10([max(yi,1) for yi in ybounds])  # replace y=0(lgy=-inf) by y=1(lgy=0)
+        mix_raw = [hist.data('mix_type_%d'%(n+1))[i] for n in range(N_zones)]
+
+        for j,mj in enumerate(mix_raw):
+            if mj!=0 and mj!=-1:
+                ax.plot([x,x], [lgybounds[j],lgybounds[j+1]], '-', color=mixing_styles[mj][1], lw=0.5)
+
+                if mj not in mix_types:
+                    mix_types.append(mj)
+
+    # custom legend for mixing types
+    l,b,w,h = ax.get_position().bounds
+    lax_left = l+0.01
+    lax_bot = b+h+0.01
+    lax_w = w/10
+    lax_h = h/20
+    laxes = []
+    for i,mi in enumerate(mix_types):
+        lax = fig.add_axes([lax_left, lax_bot, lax_w, lax_h])
+        lax.xaxis.set_visible(False)
+        lax.yaxis.set_visible(False)
+        lax.set_title(mixing_styles[mi][0], pad=1)
+        lax.add_patch(mpl.patches.Rectangle((0, 0), 2, 2, fill=False, hatch=mixing_styles[mi][2], edgecolor=mixing_styles[mi][1]))
+        laxes.append(lax)
+
+        # next one is moved to the right
+        lax_left += lax_w
+
+    return laxes
             
 
 def plot_composition_from_model(fig, ax, mod):
@@ -484,7 +514,7 @@ def plot_composition_from_model(fig, ax, mod):
 
 
 
-def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None):
+def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None, mixing_display='hatches'):
 
     # Kippenhan plot from history file, composition profile from mod file
 
@@ -496,8 +526,15 @@ def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None):
 
     ax1 = fig.add_subplot(gs[0,1])
     cbax = fig.add_subplot(gs[0,0])
-    axes = plot_kippenhan(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
-    # axes = plot_kippenhan(fig, ax1, cbax, hist, lgyone, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+
+    if mixing_display == 'hatches':
+        axes = plot_kippenhan(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis)
+    
+    elif mixing_display == 'lines':
+        axes = plot_kippenhan(fig, ax1, cbax, hist, lgy, show_luminosity=True, show_time_steps=True, show_num_zones=True, xaxis=kipp_xaxis, show_mix=False)
+        laxes = plot_mixing_zone_as_lines(fig, ax1, hist, xaxis=kipp_xaxis)
+        axes.extend(laxes)
+
     cbax.yaxis.set_ticks_position('left')
     cbax.yaxis.set_label_position('left')
 
@@ -529,109 +566,9 @@ def plot_kipp_comp(history_file, mod_file, kipp_xaxis='star_age', t0=None):
 
 
 def test(run_dir,history_file, mod_file):
-    # hist = mr.MesaData(history_file)
-    # lgy_mat_burn,burn,lgy_mat_mix,mix = get_burn_mix_matrix_from_history_dynamic_lgy(hist)
-
-    log_dir = run_dir + "LOGS/5_flash/"
-    if not os.path.exists(run_dir+"png"):
-        os.mkdir(run_dir+"png")
-    
-    index = mr.MesaProfileIndex(log_dir+"profiles.index")
-
-    # How many models, zones
-    Nprof = len(index.profile_numbers)
-
-    # filename structure
-    filename = lambda n: log_dir+"profile%d.data"%n
-
-    # # Go through each profile, save the y-coords of the top of each mixing zones.
-    # # We'll include non-convective because that tells us about the gaps between convective regions
-    # Mix_type_all, Mix_ytop_all = [],[]
-    # # Also store the size of each convection zone, normalized by the scale height at the bottom
-    # Mix_size_all = []
-
-    g = G*1.4*Msun/12e5**2
-    def H(T,mu):
-        return kB*T/(mu*mp*g)
-
-    fig,ax = plt.subplots(1,1)
-    ax.set_ylabel(r"log $\Delta r/H$")
-    ax.set_xlabel(r"log $y$")
-    colors = ['k','g','m','c','y']
-
-    # Out of bounds points just for the legend
-    ax.plot(0,0,'k.',label='gap')
-    ax.plot(0,0,'g.',label='conv')
-    ax.plot(0,0,'m.',label='over')
-    ax.plot(0,0,'c.',label='semi')
-    ax.plot(0,0,'y.',label='th')
-    ax.legend(frameon=False,loc=3)
-
-    for i, prof_number in enumerate(index.profile_numbers):
-    # for i, prof_number in enumerate([index.profile_numbers[-1],]):
-        data = mr.MesaData(filename(prof_number)) 
-
-        # Go from inside out
-        mx = data.conv_mixing_type[::-1]
-        r = data.R_cm[::-1]
-        y = data.column_depth[::-1]
-        T = data.T[::-1]
-        mu = data.mu[::-1]
-
-        mix_type = []
-        mix_size = []
-        mix_ytop = []
-        cur_type = mx[0]
-        ybot = y[0]
-        rbot = r[0]
-        Hbot = H(T[0],mu[0])
-
-        lines = []
-
-        for j in range(1,len(mx)-1):
-            if mx[j] != cur_type: # change of mixing type
-
-                mix_type.append(cur_type)
-
-                ytop = y[j]
-                mix_ytop.append(ytop)
-
-                rtop = r[j]
-                mix_size.append((rtop-rbot)/Hbot)
-
-                # plot
-                xx1, xx2 = np.log10([ybot,ytop])
-                yy = np.log10(mix_size[-1])
-                col = colors[cur_type]
-                marker = None if yy>-1 else 'o'  # cant see the lines if they are too short
-                line, = ax.plot([xx1,xx2], [yy,yy], color=col, ls='-', marker=marker, ms=2)
-                lines.append(line)
-
-                cur_type = mx[j]
-                rbot = rtop
-                ybot = ytop
-                Hbot = H(T[j],mu[j])
-            
-
-        # print(data.model_number, len(mix_type), np.unique(mix_type), min(mix_size))
-
-        Nzones = len([1 for x in mix_type if x!=0])
-        fig.suptitle(f"Model \#{data.model_number} --- t = {data.star_age*yr:.1e} s --- log dt/s = {np.log10(data.time_step*yr):.1f} --- Nzones = {Nzones}", y=0.95)
-        ax.set_xlim(4,10)
-        ax.set_ylim(-5,1.5)
-        # plt.pause(0.1)
-        fig.savefig(run_dir+'png/conv_%05d.png'%i, bbox_inches='tight', pad_inches=1, dpi=150)
-        for line in lines:
-            line.remove()
-        
-        
+    pass
 
 
-        
-        
-
-
-        
 
 
 # Command line call
@@ -643,6 +580,7 @@ parser.add_argument('-t','--test', action='store_true', help='only run the test 
 
 parser.add_argument('-x','--xaxis', type=str, help='x-axis for kippenhan plot (star_age or model_number)', default='star_age')
 parser.add_argument('-t0',type=float, help='minimum time in case x-axis=star_age', default=None)
+parser.add_argument('-lines', action='store_true', help='show mixing regions as lines instead of hatches')
 
 parser.add_argument('-s','--show', action='store_true', help='show plot dont save')
 parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run dir)', default='kipp.pdf')
@@ -674,8 +612,14 @@ if __name__ == "__main__":
         sys.exit()
 
     xaxis = args.xaxis
-    if mod_file == None: xaxis = 'model_number'
-    fig = plot_kipp_comp(history_file, mod_file, kipp_xaxis=xaxis, t0=args.t0)
+    if mod_file == None: 
+        xaxis = 'model_number'
+
+    mixing_display = 'hatches'
+    if args.lines:
+        mixing_display = 'lines'
+
+    fig = plot_kipp_comp(history_file, mod_file, kipp_xaxis=xaxis, t0=args.t0, mixing_display=mixing_display)
 
     if not args.show:
         savefile = run_dir + args.outfile
