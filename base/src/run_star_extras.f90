@@ -162,12 +162,13 @@
                write(*,*) "Lrad/LEdd=", L_over_LEdd
             end if
             
-            do percent_save = 50,90,10
+            !do percent_save = 50,90,10
+            do percent_save = INT(s%x_ctrl(2)*100 - 40), 90, 10
                frac_save = real(percent_save)/100
                write(frac_save_str,'(f4.2)') frac_save
                save_model_filename = 'models/ns_env_'//trim(frac_save_str)//'Edd.mod'
                inquire(FILE=save_model_filename, EXIST=file_exists)
-               if (L_over_LEdd .gt. frac_save .and. L_over_LEdd .lt. frac_save+0.01 .and. .not. file_exists) then
+               if (L_over_LEdd .gt. frac_save .and. L_over_LEdd .lt. frac_save+0.05 .and. .not. file_exists) then
                   call star_write_model(s% id, save_model_filename, ierr)
                   write(*,*) 'saved to ', save_model_filename
 

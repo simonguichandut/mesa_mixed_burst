@@ -41,14 +41,14 @@ class Extended_Profile:
         if self.iph is not None:
             return self.prof.R_cm[self.iph]
         else:
-            return None 
+            return None
 
     def tauph(self): # Optical depth at photosphere
 
         if self.iph is not None:
             return self.prof.tau[self.iph]
         else:
-            return None 
+            return None
 
     def yitf(self): # highest column at which H1 is the dominant species
         most = get_most_abundant_isotope(self.prof)
@@ -64,19 +64,19 @@ class Extended_Profile:
         return self.prof.eps_nuc - self.prof.non_nuc_neu
 
     def Mdot(self): # mass-loss rate (g/s)
-        return 4*np.pi*self.prof.R_cm**2 * self.prof.Rho * self.velocity
+        return 4*np.pi*self.prof.R_cm**2 * self.prof.Rho * self.prof.velocity
 
 
     def _is_available(self, var):
         # Either in the profile itself or a method in this class
         return self.prof.in_header(var) or self.prof._any_version(var) or hasattr(self, var)
 
-    def get(self, var): 
+    def get(self, var):
         if hasattr(self, var):
             return getattr(self, var)()
         else:
             return self.prof.__getattr__(var) # gets called if var is not a method name of this class
-    
+
 
 def make_data_dict(log_dir, vars):
 
@@ -85,7 +85,7 @@ def make_data_dict(log_dir, vars):
 
     dic = {}
 
-    if 'model_number' not in vars: 
+    if 'model_number' not in vars:
         dic = {'model_number':[]} # included by default
 
     # Start getting the keys and intialize values as empty lists
@@ -95,6 +95,7 @@ def make_data_dict(log_dir, vars):
     for var in vars:
         if P1._is_available(var):
             dic[var] = []
+            print(var)
         else:
             print("\n %s not available either in profile or method. Will be ignored.\n"%var)
 
@@ -138,7 +139,7 @@ if __name__ == "__main__":
 
     full_log_dir = run_dir + 'LOGS/' + log_dir
 
-    pickle_dir = run_dir + "pickle/" 
+    pickle_dir = run_dir + "pickle/"
     if not os.path.exists(pickle_dir):
         os.mkdir(pickle_dir)
 
@@ -150,7 +151,5 @@ if __name__ == "__main__":
     # Pickle dict
     with open(filename, 'wb') as f:
         pickle.dump(D, f)
-    
-    print("Saved to ", filename)
 
-    
+    print("Saved to ", filename)
