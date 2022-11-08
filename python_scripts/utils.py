@@ -67,7 +67,7 @@ def get_most_abundant_isotope(data):
     isotope_list = get_isotope_list()
     isotopes_present = [iso for iso in isotope_list if (data.in_data(iso) and max(data.bulk_data[iso])>1e-3)]
     most = []
-    for i in range(len(data.bulk_data)):
+    for i in range(len(data.bulk_data['h1'])):
         abundances = [data.bulk_data[iso][i] for iso in isotopes_present]
         most.append(isotopes_present[abundances.index(max(abundances))])
         #print(data.d[i],most[-1])

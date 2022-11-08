@@ -15,12 +15,10 @@ runs/**/*.*
 runs/**/x*
 runs/**/*000
 !runs/**/*.pdf
-!runs/**/*.pickle
 !runs/**/inlist_folder/inlist*
 !runs/**/movies/*.mp4
 !runs/**/models/*.mod
 !runs/**/terminal_outputs/*.txt
-!runs/**/histories/*
 !runs/info.md
 
 # python files not in dedicated scripts file are local only
@@ -37,3 +35,4 @@ job_*
 slurm*
 *temp*
 relax_tau_test/
+parallel_run_dir_list

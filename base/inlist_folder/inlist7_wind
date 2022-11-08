@@ -19,9 +19,11 @@
 &controls
 
   !! Stopping condition (see run_star_extras)
-  x_logical_ctrl(3) = .true.  
+  !x_logical_ctrl(3) = .true.  
   !$ x_ctrl(3) = 1d-15          ! stop when timestep drops below this (years)
   !$ x_ctrl(4) = 1d0            ! but only when star age greater than this (seconds)
+
+  x_logical_ctrl(4) = .true.  ! stop when sonic point crosses the photosphere (x_ctrl(4) applies)
 
   !! Maximum time in case not reaching the condition
   max_age_in_seconds = 60d0

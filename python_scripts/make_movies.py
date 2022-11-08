@@ -1,3 +1,4 @@
+from re import A, M
 from utils import *
 from matplotlib.animation import FuncAnimation,FFMpegWriter
 
@@ -415,13 +416,275 @@ def make_wind_movie(log_dir, movie_filename):
     print("\nSaved to ",movie_filename)
     
 
+def make_lightcurve_movie(log_dir, movie_filename):
+
+    index = mr.MesaProfileIndex(log_dir+"profiles.index")
+    filename = lambda n: log_dir+"profile%d.data"%n
+    
+    # profile_list = index.profile_numbers
+    profile_list = []
+    for n in index.profile_numbers:
+        if os.path.exists(filename(n)):
+            profile_list.append(n)
+    num_profiles = len(profile_list)
+
+    # last_prof = mr.MesaData(filename(profile_list[-1]))
+    # t_max = last_prof.star_age*yr
+
+    print(f"Making movie using {num_profiles} log files in {log_dir}")
+
+    fig = plt.figure(figsize=(14,8))#, constrained_layout=True)
+    gs = mpl.gridspec.GridSpec(6,4, figure=fig, width_ratios=(1.6,1,1,1), hspace=0.5,wspace=0.6)
+
+    # First column
+    ax1 = fig.add_subplot(gs[:3,0])
+    ax1.set_xlabel(r"$t$ (s)")
+    ax1.xaxis.set_label_coords(0.5,0.1)
+    ax1.set_ylabel(r"$L$ (10$^{38}$ erg s$^{-1}$)")
+
+    ax2 = fig.add_subplot(gs[3:,0])
+    ax2.set_xlabel(r"$\rho$ (g cm$^{-3}$)")
+    ax2.set_ylabel(r"$T$ (K)")
+    
+    # Second column
+    ax5 = fig.add_subplot(gs[4:,1])
+    ax5.set_xlabel(r"$r-R$ (km)")
+
+    ax3 = fig.add_subplot(gs[:2,1], sharex=ax5)
+    ax3.set_ylabel(r"$\rho$ (g cm$^{-3}$)")
+    ax3b = ax3.twinx()
+    ax3b.set_ylabel(r"$M_{\rm above}$ (g)")
+
+    ax4 = fig.add_subplot(gs[2:4,1], sharex=ax5)
+    ax4.set_ylabel(r"$v$ (cm s$^{-1}$)")
+    # escape velocity
+    # rvec = np.logspace(1,3)*1e5
+    # vesc = np.sqrt(2*G*1.4*Msun/rvec)
+    # ax4.fill_between(rvec/1e5-12, vesc,1e5*vesc,color='gray',alpha=0.2)
+    ax4b = ax4.twinx()
+    ax4b.set_ylabel(r"$\pm c_s$ (cm s$^{-1}$)")
+
+    ax5.set_ylabel(r"$L$ (10$^{38}$ erg s$^{-1}$)")
+    ax5b = ax5.twinx()
+    ax5b.set_ylabel(r"$L_{\rm crit}$ (10$^{38}$ erg s$^{-1}$)")
+
+    # Third column
+    ax8 = fig.add_subplot(gs[4:,2])
+    ax8.set_xlabel(r"$r-R$ (km)")
+
+    ax6 = fig.add_subplot(gs[:2,2], sharex=ax8)
+    ax6.set_ylabel(r'$\tau$')
+    ax6b = ax6.twinx()
+    ax6b.set_ylabel(r"$\kappa/0.34$")
+
+    ax7 = fig.add_subplot(gs[2:4,2], sharex=ax8)
+    ax7.set_ylabel(r"$c_P$ (erg g$^{-1}$ K$^{-1}$)")
+    ax7b = ax7.twinx()
+    ax7b.set_ylabel(r"$\beta=P_{\rm gas}/P$")
+    
+    ax8.set_ylabel(r"$S$ ($k_B/m_u$)")
+    ax8b = ax8.twinx()
+    ax8b.set_ylabel(r"T (K)")
+
+    # Fourth column
+    ax11 = fig.add_subplot(gs[4:,3])
+    ax11.set_xlabel(r"$r-R$ (km)")
+
+    ax9 = fig.add_subplot(gs[:2,3], sharex=ax11)
+    ax9.set_ylabel(r"$\nabla_{\rm ad}-\nabla_{\rm rad}$")
+    ax9b = ax9.twinx()
+    ax9b.set_ylabel(r"$\nabla-\nabla_{\rm ad}$")
+
+    ax10 = fig.add_subplot(gs[2:4,3], sharex=ax11)
+    ax10.set_ylabel(r"$\mu$")
+    ax10b = ax10.twinx()
+    ax10b.set_ylabel(r"$X$")
+
+    ax11.set_ylabel(r"$-E_{\rm tot}$ (erg g$^{-1}$)")
+    ax11b = ax11.twinx()
+    ax11b.set_ylabel(r"$\epsilon_{\rm nuc}$ (erg g$^{-1}$)")
+
+    for ax in (ax3,ax4,ax6,ax7,ax9,ax10):
+        plt.setp(ax.get_xticklabels(), visible=False)
+
+    main_axes = [ax1,ax2,ax3,ax4,ax5,ax6,ax7,ax8,ax9,ax10,ax11]
+    secondary_axes = [None,None,ax3b,ax4b,ax5b,ax6b,ax7b,ax8b,ax9b,ax10b,ax11b] # Nones so the indices align
+
+    # Panels: L-t, T-rho, then profiles as fct of r
+    def init_func():
+
+        ## Generate mpl artist handles
+        artists=[]
+
+        line, = ax1.plot([],[],'k-')
+        curr_pt, = ax1.plot([],[],'k.',ms=6)
+        artists.extend([line,curr_pt])
+
+        for ax in main_axes[1:]:
+            line, = ax.plot([],[],'k.-',ms=2, lw=0.5)
+            rph_pt, = ax.plot([],[],'o',ms=7,mec='g',mfc='g',label='photosphere')
+            rs_pt, = ax.plot([],[],'x',ms=7,mec='r',label='sonic point')
+            artists.extend((line,rph_pt,rs_pt))
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+
+            if ax==main_axes[1]:
+                rph_pt_leg, rs_pt_leg = rph_pt,rs_pt # specifying legend handles fixes bug where legend items appear twice..
+
+        for ax in secondary_axes[2:]: # only the line, not the sonic pt and phot
+            line, = ax.plot([],[],'b--', lw=0.5) 
+            artists.extend((line,))
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+
+        # Extra lines
+        line, = ax4b.plot([],[],'b--',lw=0.5)
+        artists.extend((line,))
+
+        ## Set axis limits
+
+        # axes[0].set_xlim([0,1.1*t_max])       
+        
+        # L--t
+        ax1.set_yscale('linear')
+        ax1.set_xlim([0,15])
+        ax1.set_ylim([0,3.6]) 
+
+        # T--rho
+        ax2.set_xlim([1e-8,1e9])
+        ax2.set_ylim([1e5,2e9])
+        ax2.legend(loc=4,frameon=False, handles=[rph_pt_leg,rs_pt_leg])
+
+        # rho,m
+        ax3.set_ylim([1e-8,1e9])
+        ax3b.set_ylim([1e11,1e20])
+
+        # v,cs
+        for ax in (ax4,ax4b):
+            ax.set_yscale('symlog')
+            ax.set_ylim([-2e9,2e9])
+            ax.set_yticks([-1e9,-1e5,-10,10,1e5,1e9])
+
+        # L,Lcrit
+        ax5.set_yscale('linear')
+        ax5.set_ylim([0,10])
+        ax5b.set_yscale('linear')
+        ax5b.set_ylim([0,10])
+
+        # tau,kappa
+        ax6.set_ylim([0.5,1e3])
+        ax6b.set_ylim([1e-3,2])
+
+        # cp,beta
+        ax7.set_ylim([1e6,1e19])
+        ax7b.set_ylim([1e-6,2])
+
+        # S,T
+        ax8.set_ylim([1e-1,1e6])
+        ax8b.set_ylim([1e5,2e9])
+
+        # del_ad-del_rad, del-del_ad
+        ax9.set_yscale('linear')
+        ax9.set_ylim([-0.1,0.1])
+        ax9b.set_ylim([1e-5,1e-2])
+
+        # mu,X
+        ax10.set_yscale('linear')
+        ax10.set_ylim([0.5,2])
+        ax10b.set_yscale('linear')
+        ax10b.set_ylim([0,0.71])
+
+        # E,eps_nuc
+        ax11.set_ylim([1e16,1e21])
+        ax11b.set_ylim([1e13,1e17])
+
+
+        # r-R on the x-axis
+        for ax in main_axes[2:]:
+            ax.set_xlim([5e-3,5e2])
+
+        return artists
+
+    artists=init_func()
+
+    lc_t,lc_L = [],[]
+
+    def func_plot(prof_number):
+        prof = mr.MesaData(filename(prof_number))
+        fig.suptitle(f"Model \#{prof.model_number} --- t-t$_0$ = {prof.star_age*yr:.1e} s --- dt = {prof.time_step*yr:.1e} s", y=0.95)
+
+        r,T,rho,L,v,mu,X = prof.R_cm,prof.T,prof.Rho,prof.luminosity,prof.velocity,prof.mu,prof.h1
+        r /= 1e5
+        L *= Lsun/1e38
+        # v = abs(v)
+        # L = abs(L)
+
+        cs = np.sqrt(kB*T/mu/mp)
+        isonic = np.argmin(abs(v-cs))
+        iphot = np.argmin(abs(L*1e38/(4*np.pi*(r*1e5)**2) - sigmarad*T**4))
+
+        # First column
+        lc_t.append(prof.star_age*yr)
+        lc_L.append(L[iphot])
+
+        artists[0].set_data(lc_t,lc_L)
+        artists[1].set_data(lc_t[-1],lc_L[-1])
+        artists[2].set_data(rho,T)
+        artists[3].set_data(rho[iphot],T[iphot])
+        artists[4].set_data(rho[isonic],T[isonic])
+        k_artist = 5 # tracks the mpl artist index
+
+        r-=12 # plot r-R
+
+        # more quantities
+        M_above = np.cumsum(prof.dm)
+        tau,kap,E,eps_nuc,S,cp,beta = prof.tau,prof.opacity,prof.total_energy,prof.eps_nuc,prof.entropy,prof.cp,prof.pgas_div_ptotal
+        delad_minus_delrad = prof.grada-prof.gradr
+        del_minus_delad = np.maximum(prof.super_ad, 1e-99) # change zeros (i.e. not super-adiabatic) to 1e-99
+        Lcrit = 4*np.pi*G*1.4*Msun*c/kap
+
+        # Profiles
+        # Main axis
+        for ydata in (rho,v,L,tau,cp,S,delad_minus_delrad,mu,-E):
+            artists[k_artist].set_data(r, ydata)
+            artists[k_artist+1].set_data(r[iphot], ydata[iphot])
+            artists[k_artist+2].set_data(r[isonic], ydata[isonic])
+            k_artist += 3
+
+        # Secondary axis
+        for ydata in (M_above,cs,Lcrit/1e38 ,kap/0.34,beta,T,del_minus_delad,X,eps_nuc):
+            artists[k_artist].set_data(r, ydata)
+            k_artist += 1
+
+        # Extra lines
+        artists[k_artist].set_data(r, -cs)
+
+        return artists
+
+    # Adjust layout
+    # gs.tight_layout(fig, pad=2)
+    gs.tight_layout(fig)
+    gs.update(top=0.9)
+    l1,b1,w,h = ax1.get_position().bounds
+    _,b2,_,_ = ax2.get_position().bounds
+    l3,_,_,_ = ax3.get_position().bounds
+    dist = l3-l1-w
+    ax1.set_position([l1,b1,w+0.5*dist,h])
+    ax2.set_position([l1,b2,w+0.5*dist,h])
+
+    anim = FuncAnimation(fig, func_plot, init_func=init_func, frames=profile_list, blit=True)
+    writervideo = FFMpegWriter(fps=30)
+    anim.save(movie_filename, writer=writervideo, dpi=300)
+    print("\nSaved to ",movie_filename)
+
+
     
 
 # Command line call
 parser = argparse.ArgumentParser(description="Analyze convection")
 parser.add_argument('-dir','--rundir', type=str, help='run directory', default=None)
 parser.add_argument('-L','--logdir', type=str, help='log directory (withing run_dir/LOGS/', default=None)
-parser.add_argument('-m','--movie', type=str, help='movie function (nuc, conv, wind)', default=None)
+parser.add_argument('-m','--movie', type=str, help='movie function (nuc, conv, wind, lightcurve)', default=None)
 parser.add_argument('-o','--outfile', type=str,help='name of output file (will go in run_dir/movies)', default='movie.mp4')
 
 
@@ -452,6 +715,9 @@ if __name__ == "__main__":
 
     elif args.movie in ('wind','wind_movie'):
         make_wind_movie(full_log_dir, movie_filename)
+
+    elif args.movie in ('lightcurve','lightcurve_movie','lc'):
+        make_lightcurve_movie(full_log_dir, movie_filename)
 
     else:
         print("Unknown movie function ", args.movie)

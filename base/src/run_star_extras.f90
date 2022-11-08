@@ -114,6 +114,7 @@
          integer :: percent_save
          real(dp) :: frac_save
          character (len=strlen) :: frac_save_str,save_model_filename
+         integer :: k_sonic, k_phot
 
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -158,12 +159,12 @@
             Lmax = s%x_ctrl(2)*LEdd
             L_rel_err = (Lrad(1) - Lmax)/Lmax
 
-            if (abs(L_rel_err) .lt. 0.25) then
+            if (abs(L_rel_err) .lt. 0.50) then
                write(*,*) "Lrad/LEdd=", L_over_LEdd
             end if
             
             !do percent_save = 50,90,10
-            do percent_save = INT(s%x_ctrl(2)*100 - 40), 90, 10
+            do percent_save = INT(s%x_ctrl(2)*100 - 50), 90, 10
                frac_save = real(percent_save)/100
                write(frac_save_str,'(f4.2)') frac_save
                save_model_filename = 'models/ns_env_'//trim(frac_save_str)//'Edd.mod'
@@ -200,9 +201,31 @@
             end if 
 
 
-         else if (s% x_logical_ctrl(4)) then
-            call smooth_outer_abundances(id)
+         ! else if (s% x_logical_ctrl(4)) then
+         !    call smooth_outer_abundances(id)
+         ! end if
 
+         else if (s% x_logical_ctrl(4)) then
+            ! Check if sonic point is past the photosphere
+            ! but only if star_age > x_ctrl(4) (seconds)
+            if (s%star_age*secyer > s%x_ctrl(4)) then 
+
+               k_sonic = minloc(abs(s%v_div_csound - 1), 1)
+               k_phot = minloc(abs( s%L/(4*pi*(s%r)**2) - boltz_sigma*(s%T)**4), 1)
+               if (k_phot > k_sonic - 100) then
+                  write(*,*) "ksonic ", k_sonic, "kphot ", k_phot
+               end if
+               
+               if (k_phot > k_sonic) then
+                  write(*,*) "Sonic point: k=", k_phot, ", r=", s%r(k_sonic)/1d5, " km, rho=", s%rho(k_sonic), " g/cm3"
+                  write(*,*) "Photosphere: k=", k_phot, ", r=", s%r(k_phot)/1d5, " km, rho=", s%rho(k_phot), " g/cm3"
+                  extras_check_model = terminate
+                  s% termination_code = t_xtra4
+                  termination_code_str(t_xtra4) = 'Sonic point past the photosphere'
+               end if
+
+
+            end if
          end if
 
       end function extras_check_model
@@ -691,6 +714,8 @@
          write(io, fmt=int_fmt, advance='no') s% model_number
          write(io, fmt=dbl_fmt, advance='no') s% star_age
          nz = s% nz
+
+         ! Start with maximum column
          write(io, fmt=dbl_fmt, advance='no') safe_log10(s% xmstar*sum(s% dq(1:nz))/(4*pi*s% r(nz)*s% r(nz)))
 
          ! Loop

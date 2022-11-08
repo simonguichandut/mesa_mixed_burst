@@ -10,7 +10,11 @@
       log_dt ! log10 time_step
       num_zones ! number of zones in the model
    
-       
+   ! mixing and burning regions
+   
+      mixing_regions 20
+      burning_regions 20
+      
    ! conditions near surface
    
       log_L ! log10 luminosity in Lsun units
@@ -30,6 +34,7 @@
       burn_ne
       other
 
+      
    ! misc
    
       v_div_csound_surf ! velocity divided by sound speed at outermost grid point
