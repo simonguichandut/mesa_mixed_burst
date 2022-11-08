@@ -2,7 +2,7 @@ from utils import *
 
 def make_Trho_plot(models, filename=None):
 
-    fig,ax = plt.subplots(1,1)
+    fig,ax = plt.subplots(1,1,figsize=(8,6))
     ax.set_xlabel(r'$\rho$ (g cm$^{-3}$)')
     ax.set_ylabel(r'$T$ (K)')
     ax2 = ax.twinx()

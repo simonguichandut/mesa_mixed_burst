@@ -10,15 +10,10 @@ base/make/*.smod
 # base_inlist should be modified (from template) for local path
 base/base_inlist
 
-# Run folder: whitelist lightcurves, inlists, movies, models, outputs
+# Run folder: whitelist inlists
+runs/**
 runs/**/*.*
-runs/**/photos
-!runs/**/*.pdf
 !runs/**/inlist_folder/inlist*
-!runs/**/movies/*.mp4
-!runs/**/models/*.mod
-!runs/**/terminal_outputs/*.txt
-!runs/info.md
 
 # python files not in dedicated scripts file are local only
 *.py

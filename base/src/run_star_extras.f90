@@ -212,6 +212,12 @@
 
                k_sonic = minloc(abs(s%v_div_csound - 1), 1)
                k_phot = minloc(abs( s%L/(4*pi*(s%r)**2) - boltz_sigma*(s%T)**4), 1)
+<<<<<<< Updated upstream
+=======
+
+               write(*,*) "Sonic pt: k=",k_sonic," r(k)=", s%r(k_sonic)
+               write(*,*) "Phot: k=",k_phot," r(k)=", s%r(k_phot)
+>>>>>>> Stashed changes
                if (k_phot > k_sonic - 100) then
                   write(*,*) "ksonic ", k_sonic, "kphot ", k_phot
                end if

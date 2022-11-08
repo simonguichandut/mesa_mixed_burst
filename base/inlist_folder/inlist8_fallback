@@ -69,7 +69,11 @@
 
   !! Files
   photo_interval = 100
-  profile_interval = 10
+  profile_interval = 100
+  max_num_profile_models = 200
+
+  !! Force a high priority profile save at every x_ctrl(7) seconds
+  x_ctrl(7) = 0.1d0
 
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.

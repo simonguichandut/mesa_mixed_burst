@@ -9,7 +9,7 @@ def h1_spline(column_depth, iso_data, x1, x2, Npts):
     if x1=='auto':
         imin = list(xx).index(xx[yy<max(yy)-0.005][0])-1
     else:
-        imin = np.argmin(abs(xx-eval(x2)))
+        imin = np.argmin(abs(xx-eval(x1)))
 
     xx = xx[imin:imax]
     yy = yy[imin:imax]
@@ -43,8 +43,9 @@ def h1_spline(column_depth, iso_data, x1, x2, Npts):
     return new_iso_data, imin, imax
 
 
-def write_new_model(iso_data, old_modfile, new_modfile):
+def write_new_model(new_iso_data, old_modfile, new_modfile):
     with open(old_modfile, "r") as fold:
+        model = mr.MesaData(old_modfile)
         with open(new_modfile, "w") as fnew:
         
             # Header data stays the same

@@ -53,6 +53,7 @@
    gradL ! gradient for Ledoux criterion for convection
    !sch_stable ! 1 if grada > gradr, 0 otherwise
    !ledoux_stable ! 1 if gradL > gradr, 0 otherwise
+   brunt_N2 ! brunt-vaisala frequency squared
 
    ! fourPrad_div_PchiT ! = phi, where 1/phi = 1 + (dPgas/dPrad)|rho  ! not actually implemented
       ! if phi < Lrad/Ledd, then will get density inversion

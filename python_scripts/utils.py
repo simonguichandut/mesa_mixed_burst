@@ -97,6 +97,55 @@ def get_zones(L):
                 dic[s].append([i-1,i])
     return dic
 
+def change_model_column(old_modfile, new_modfile, column_name, new_column_data):
+    with open(old_modfile, "r") as fold:
+        mod = mr.MesaData(old_modfile)
+
+        if type(new_column_data) in (int,float):
+            new_column_data = np.ones(len(mod.T)) * new_column_data
+
+        with open(new_modfile, "w") as fnew:
+        
+            # Header data stays the same
+            prev_line = ''
+            stop_next = False
+            for line in fold:
+                fnew.write(line)
+                if stop_next:
+                    break
+                if line == '\n' and 'time' in prev_line:
+                    stop_next = True
+                prev_line = line
+    
+            icol = mod.bulk_names.index(column_name)
+            for k,line in enumerate(fold):
+            
+                if line == '\n': # end of data
+                    fnew.write(line)
+                    break
+                
+                new_line = []
+                for i,val in enumerate(line.split()):
+                
+                    # File doesn't change for all other columns
+                    if i!=icol:
+                        new_val_str = val
+
+                    else:
+                        new_val = new_column_data[k]
+                        new_val_str = ("%.17e"%new_val).replace('e',"E")
+    
+                    if eval(new_val_str)>=0:
+                        new_val_str = ' ' + new_val_str # extra whitespace so aligns with negative values
+    
+                    new_line.append(new_val_str)
+                
+                whitespace = 4-len(str(k+1))
+                fnew.write(' '*whitespace + '   '.join(new_line)+'\n')
+    
+            # previous model data
+            for line in fold:
+                fnew.write(line)
 
 def set_size(width, fraction=1):
     """ Set aesthetic figure dimensions to avoid scaling in latex.
