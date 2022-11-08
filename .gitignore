@@ -12,8 +12,7 @@ base/base_inlist
 
 # Run folder: whitelist lightcurves, inlists, movies, models, outputs
 runs/**/*.*
-runs/**/x*
-runs/**/*000
+runs/**/photos
 !runs/**/*.pdf
 !runs/**/inlist_folder/inlist*
 !runs/**/movies/*.mp4
