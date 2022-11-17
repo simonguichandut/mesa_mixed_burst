@@ -44,8 +44,14 @@
    velocity ! velocity at outer boundary of zone -- 0 if no velocity variable
    csound ! sound speed
 
+   ! Beginning of step values
    conv_vel ! convection velocity (cm/sec)
-   conv_mixing_type ! mixing types are defined in mesa/mlt/public/mlt_def (NO, they're in mesa/const/public/const_def.f90)
+   !conv_mixing_type ! same as mixing_type
+   mixing_type ! mixing types are defined in mesa/mlt/public/mlt_def (NO, they're in mesa/const/public/const_def.f90)
+   log_D_mix
+
+   ! End of step values
+   mlt_mixing_type
    mlt_mixing_length ! mixing length for mlt (cm)
    log_mlt_D_mix ! log10 diffusion coefficient for mixing from mlt (cm^2/sec)
    gradr ! dlnT/dlnP required for purely radiative transport

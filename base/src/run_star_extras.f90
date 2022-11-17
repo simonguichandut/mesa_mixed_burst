@@ -74,6 +74,7 @@
          ! Custom routines
          s% other_kap_get => my_other_kap_get
          s% other_remove_surface => my_other_remove_surface
+         s% other_close_gaps => my_other_close_gaps
 
       end subroutine extras_controls
       
@@ -212,12 +213,9 @@
 
                k_sonic = minloc(abs(s%v_div_csound - 1), 1)
                k_phot = minloc(abs( s%L/(4*pi*(s%r)**2) - boltz_sigma*(s%T)**4), 1)
-<<<<<<< Updated upstream
-=======
 
                write(*,*) "Sonic pt: k=",k_sonic," r(k)=", s%r(k_sonic)
                write(*,*) "Phot: k=",k_phot," r(k)=", s%r(k_phot)
->>>>>>> Stashed changes
                if (k_phot > k_sonic - 100) then
                   write(*,*) "ksonic ", k_sonic, "kphot ", k_phot
                end if
@@ -272,6 +270,95 @@
          ! write(*,*) 'do_remove_surface (custom) - model #',s%model_number,' - remove at index',j_remove,' - density (k-1)',s% rho(j_remove-1),' - cutoff ', min_density
          k = j_remove ! The cell to remove down to.
       end subroutine my_other_remove_surface
+
+
+      subroutine my_other_close_gaps(id, mix_type, min_gap, ierr)
+         use num_lib, only: binary_search
+         integer, intent(in) :: id
+         integer, intent(in) :: mix_type
+         real(dp), intent(in) :: min_gap
+         integer, intent(out) :: ierr
+         type (star_info), pointer :: s
+
+         integer :: k, kmax
+         logical :: in_region, dbg
+         real(dp) :: rtop, rbot, Hp
+         integer :: ktop, kbot ! k's for gap
+         real(dp), dimension(:), allocatable :: ycol 
+         
+         ierr = 0
+         include 'formats'
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) then
+            write(*,*) 'my_other_gaps: get_star_ptr ierr', ierr
+            return
+         end if
+
+         if (min_gap < 0) return
+         
+         allocate(ycol(s%nz))
+         ycol = s%P/(10**s%log_surface_gravity) ! y=P/g hydrostatic equilibrium
+
+         if (s% x_ctrl(8) .gt. 0) then
+            kmax = binary_search(s%nz, ycol, 0, 10**s% x_ctrl(8))
+
+            if (kmax < 1 .or. kmax > s%nz-2) then
+               write(*,*) 'other_close_gaps: Could not find lgy=', s% x_ctrl(8), 'in P/g array'
+               kmax = s% nz
+            endif
+
+         else
+            kmax = s% nz ! in which case the routine below is the same as close_gaps in star/private/mix_info.f90
+         end if
+
+         ! dbg = .false.
+         dbg = .true.
+         ! if (dbg) write(*,*) 'begin close_gaps' 
+
+         ierr = 0
+         in_region = (s% mixing_type(kmax) == mix_type)
+         rbot = 0
+         do k=kmax-1, 2, -1
+            if (in_region) then
+               if (s% mixing_type(k) /= mix_type) then ! end of region
+                  kbot = k+1
+                  rbot = s% r(kbot)
+                  in_region = .false.
+                  ! if (dbg) write(*,2) 'end of region', kbot, rbot
+               end if
+            else
+               if (s% mixing_type(k) == mix_type) then ! start of region
+                  ktop = k
+                  rtop = s% r(ktop)
+                  Hp = s% P(ktop)/(s% rho(ktop)*s% grav(ktop))
+                  ! if (dbg) write(*,2) 'start of region', ktop, rtop
+                  ! if (dbg) write(*,1) 'rtop - rbot < Hp*min_gap', (rtop - rbot) - Hp*min_gap, &
+                     ! rtop - rbot, Hp*min_gap, Hp, min_gap, (rtop-rbot)/Hp
+                  if (rtop - rbot < Hp*min_gap) then
+                     if (kbot < kmax) then
+                        s% cdc(ktop+1:kbot-1) = (s% cdc(ktop) + s% cdc(kbot))/2
+                        s% D_mix(ktop+1:kbot-1) = &
+                           (s% D_mix(ktop) + s% D_mix(kbot))/2
+                        if(.not. s% conv_vel_flag) s% conv_vel(ktop+1:kbot-1) = (s% conv_vel(ktop) + s% conv_vel(kbot))/2
+                        s% mixing_type(ktop+1:kbot-1) = mix_type
+                        if (dbg) write(*,3) 'close mixing gap', &
+                              ktop+1, kbot-1, (rtop - rbot)/Hp, rtop - rbot, Hp
+                     else
+                        s% cdc(ktop+1:kbot) = s% cdc(ktop)
+                        s% D_mix(ktop+1:kbot) = s% D_mix(ktop)
+                        if(.not. s% conv_vel_flag) s% conv_vel(ktop+1:kbot) = s% conv_vel(ktop)
+                        s% mixing_type(ktop+1:kbot) = mix_type
+                        if (dbg) write(*,3) 'close mixing gap', &
+                           ktop+1, kbot, (rtop - rbot)/Hp, rtop - rbot, Hp
+                     end if
+                  end if
+                  in_region = .true.
+               end if
+            end if
+         end do
+         ! if (dbg) write(*,*) 'done close_gaps'
+         
+      end subroutine my_other_close_gaps
 
 
       ! Smoothing abundance curves
@@ -698,7 +785,7 @@
          else
             open(newunit=io, file=trim(fname), action='write', position='append', iostat=ierr)
             write_header = .false.
-         endif
+         end if
 
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(fname)

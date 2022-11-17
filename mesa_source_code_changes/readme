@@ -6,3 +6,14 @@ Works as long as the atmosphere is compact (radius constant)
     - star/defaults/pgstar.defaults          ("")   
     - star_data/private/pgstar_controls.inc  ("")
     - star/private/mix_info.f90              (printing info about prune_bad_cz_min_Hp_height)
+
+Create the "use_other_close_gaps" option
+Thanks to Rob Farmer for the instructions : https://lists.mesastar.org/pipermail/mesa-users/2022-November/014151.html
+    - star/defaults/controls.defaults        (default use_other_close_gaps to .false.)
+    - star/make/makefile_base                (include other_close_gaps.f90 src file)
+    - star/private/ctrls_io.f90              (add use_other_close_gaps in 3 places)
+    - star_data/private/star_controls.inc    (add use_other_close_gapas in 1 place)
+    - star_data/public/star_data_def.inc     (blank routine other_close_gaps_interface subroutine)
+    - star_data/public/star_data.inc         (create pointer for interface procedure) ** this file might be star_data_procedures in newer MESA versions
+    - star/other/other_close_gaps.f90            (null definition for other_close_gaps subroutine)
+    - star/private/mix_info.f90              (add if close in call_something_gap routines, to call other_close_gaps if required)
