@@ -92,7 +92,7 @@ def make_nuc_movie(log_dir, movie_filename):
                     lines_iso[iso] = line
 
         # mixing types
-        mixing_zones = get_zones(data.conv_mixing_type)
+        mixing_zones = get_zones(data.mixing_type)
         # mixing_zones.pop('0') # remove the 'no mixing' zones
         # Remove non-convective mixing ('0') and mixing types with no zones (dic value is empty list)
         mixing_zones = {key:val for key,val in mixing_zones.items() if key!='0' and len(val)>0}
@@ -185,7 +185,7 @@ def make_nuc_movie(log_dir, movie_filename):
         for iso in lines_iso.keys():
             lines_iso[iso].set_data(column, data.bulk_data[iso])
 
-        mixing_zones = get_zones(data.conv_mixing_type)
+        mixing_zones = get_zones(data.mixing_type)
         # mixing_zones.pop('0')
         mixing_zones = {key:val for key,val in mixing_zones.items() if key!='0' and len(val)>0}
         for mix in mixing_zones.keys():
@@ -274,7 +274,7 @@ def make_conv_movie(log_dir, movie_filename):
         func_plot.lines.append(line[0])
 
         # Convection zones
-        mx = data.conv_mixing_type[::-1]
+        mx = data.mixing_type[::-1]
         r = data.R_cm[::-1]
         y = data.column_depth[::-1]
         T = data.T[::-1]

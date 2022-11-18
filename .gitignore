@@ -1,4 +1,4 @@
-# Base folder: remove binaries (should be compiled for given machine
+# Base folder: remove binaries (should be compiled for given machine)
 base/star
 base/src/*.o
 base/make/*.o
@@ -10,10 +10,8 @@ base/make/*.smod
 # base_inlist should be modified (from template) for local path
 base/base_inlist
 
-# Run folder: whitelist inlists
+# Run folder
 runs/**
-runs/**/*.*
-!runs/**/inlist_folder/inlist*
 
 # python files not in dedicated scripts file are local only
 *.py
@@ -28,5 +26,5 @@ python_scripts/*testing.py
 job_*
 slurm*
 *temp*
-relax_tau_test/
 parallel_run_dir_list
+*bfg*
