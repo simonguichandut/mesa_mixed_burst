@@ -57,7 +57,7 @@ class Extended_Profile:
 
     def yh1(self): # highest column where H1 is still its constant (accretion) value
         h1 = self.prof.h1
-        ih1 = list(h1).index(h1[h1<max(h1)-0.005][0])
+        ih1 = list(h1).index(h1[h1<max(h1)-0.01][0])
         return self.prof.column_depth[ih1]
 
     def Egen(self): # energy generated (nuclear - neutrinos) (erg/g/s)
@@ -65,6 +65,15 @@ class Extended_Profile:
 
     def Mdot(self): # mass-loss rate (g/s)
         return 4*np.pi*self.prof.R_cm**2 * self.prof.Rho * self.prof.velocity
+
+    def Mh1(self): # total column of hydrogen
+        return np.sum(self.dq*self.h1)*self.xmstar
+
+    def Mhe4(self): # total column of heliuem
+        return np.sum(self.dq*self.he4)*self.xmstar
+
+    def Mc12(self): # total column of carbon
+        return np.sum(self.dq*self.c12)*self.xmstar
 
 
     def _is_available(self, var):
