@@ -5,6 +5,8 @@
   saved_model_name = 'models/ns_env_56Fe.mod' 
   save_model_filename = 'models/ns_env_relaxed.mod'
 
+  set_initial_model_number = .true.
+
   !! Set model luminosity
   relax_L_center = .true.
   new_L_center = 1.8e34 ! erg/s
