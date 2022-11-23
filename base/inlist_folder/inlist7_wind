@@ -12,7 +12,7 @@
   
   !! Run-specific inlist
   read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist7_wind'
+  extra_star_job_inlist2_name = 'inlist_folder/inlist7_wind_extra'
 
 / ! end of star_job namelist
 
@@ -23,13 +23,15 @@
   !$ x_ctrl(3) = 1d-15          ! stop when timestep drops below this (years)
   !$ x_ctrl(4) = 1d0            ! but only when star age greater than this (seconds)
 
-  x_logical_ctrl(4) = .true.  ! stop when sonic point crosses the photosphere (x_ctrl(4) applies)
+  ! stop when sonic point crosses the photosphere (x_ctrl(4) applies)
+  !x_logical_ctrl(4) = .true.  
+  ! sometimes it makes it stop too early..
 
   !! Maximum time in case not reaching the condition
   max_age_in_seconds = 60d0
 
   !! Analytic electron scattering opacity from Paczynski
-  use_other_kap = .true.
+  use_other_kap = .true. ! see run_star_extras
 
   !! Enable custom routine for removing shells below minimum density
   use_other_remove_surface = .true. ! see run_star_extras
@@ -50,25 +52,19 @@
   use_zero_dLdm_outer_BC = .true.
 
   !! turn off convection
-  !$ MLT_option = 'none'
-  !$ ! mixing_length_alpha = 1.5
-  !$ ! MLT_option = 'Henyey'
-  !$ ! use_Ledoux_criterion = .false.  
+  MLT_option = 'none'
 
-  !! Turn off net
-  !$ max_abar_for_burning = -1
-  
   !! Atmosphere
-  !$ atm_option = 'T_tau'
-  !$ atm_T_tau_relation = 'Eddington'
-  !$ atm_T_tau_opacity = 'fixed'
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
 
   !! resolution
-  !$ mesh_delta_coeff = 0.5
-  !$ varcontrol_target = 0.5d-3
-  !$ time_delta_coeff = 0.1
+  mesh_delta_coeff = 0.5
+  varcontrol_target = 0.5d-3
+  time_delta_coeff = 0.1
   min_timestep_limit = 1d-20
-  max_allowed_nz = 20000 ! default 8k
+  max_allowed_nz = 20000 
 
   merge_if_dlnR_too_small = .true.
   mesh_min_dlnR = 1d-9
@@ -78,14 +74,15 @@
 
   !! Files
   photo_interval = 500
-  profile_interval = 50
-  max_num_profile_models = 120
+  profile_interval = 20
+  max_num_profile_models = 1000
+  history_interval = 1
 
   !! Force a high priority profile save at every x_ctrl(7) seconds
   x_ctrl(7) = 0.1d0
  
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist7_wind'
+  extra_controls_inlist2_name = 'inlist_folder/inlist7_wind_extra'
 
 / ! end of controls namelist

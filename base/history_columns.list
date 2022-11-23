@@ -11,6 +11,7 @@
       num_zones ! number of zones in the model
    
    ! mixing and burning regions
+   ! (just so that pgstar kippenhahn works, not using these for the final kippenhahns)
    
       mixing_regions 20
       burning_regions 20
@@ -18,12 +19,12 @@
    ! conditions near surface
    
       log_L ! log10 luminosity in Lsun units
-      log_Lneu ! log10 neutrino luminosity in Lsun units
+      !log_Lneu ! log10 neutrino luminosity in Lsun units
       log_Teff ! log10 effective temperature
       log_R ! log10 radius in Rsun units
       log_L_div_Ledd ! log10(L/Leddington)
       
-   ! log10 total ergs/sec for reaction categories (Lsun units)
+   ! log10 total ergs/sec for reaction categories (Lsun units, nuclear neutrinos subtracted)
       
       pp
       cno
@@ -34,9 +35,19 @@
       burn_ne
       other
 
+   ! log10 total ergs/sec for reaction by elements (Lsun units, nuclear neutrinos subtracted)
+
+      log_LH
+      log_LHe
+      log_LC
+      log_LZ ! including C but excluding H,He burn
       
    ! misc
    
       v_div_csound_surf ! velocity divided by sound speed at outermost grid point
       num_retries ! total during the run
       max_conv_vel_div_csound
+
+      log_Lneu_nuc
+      log_Lneu_nonnuc
+      ! log_Lneu is the sum of these

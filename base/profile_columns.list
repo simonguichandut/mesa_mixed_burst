@@ -32,7 +32,6 @@
    pressure ! total pressure at center of zone (pgas + prad)
    pgas_div_ptotal ! pgas/pressure
    pressure_scale_height ! in Rsun units
-   !cv ! specific heat at constant volume  (actually not implemented in profile write routine..)
    cp ! specific heat at constant total pressure
    entropy ! specific entropy divided by (avo*kerg)
 
@@ -59,12 +58,8 @@
    gradL ! gradient for Ledoux criterion for convection
    !sch_stable ! 1 if grada > gradr, 0 otherwise
    !ledoux_stable ! 1 if gradL > gradr, 0 otherwise
+   
    brunt_N2 ! brunt-vaisala frequency squared
-
-   ! fourPrad_div_PchiT ! = phi, where 1/phi = 1 + (dPgas/dPrad)|rho  ! not actually implemented
-      ! if phi < Lrad/Ledd, then will get density inversion
-      ! see Joss, Salpeter, Ostriker, "Critical Luminosity", ApJ 181: 429-438, 1973.
-
    super_ad ! max(0,gradT-grada) at cell boundary 
 
    total_energy ! v^2/2 - G m / r + E (ergs/g).  negative if bound

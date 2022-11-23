@@ -13,7 +13,7 @@
 
   !! Run-specific inlist
   read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist8_fallback'
+  extra_star_job_inlist2_name = 'inlist_folder/inlist8_fallback_extra'  ! index where to remove shells goes in there
 
 / ! end of star_job namelist
 
@@ -35,31 +35,22 @@
   use_zero_dLdm_outer_BC = .true.
         
   !! turn off convection
-  !$ MLT_option = 'none'
-  !$ ! mixing_length_alpha = 1.5
-  !$ ! MLT_option = 'Henyey'
-  !$ ! use_Ledoux_criterion = .false.  
-
-  !$ ! mixing needed?
-  !$ use_Ledoux_criterion = .true.  
-  !$ alpha_semiconvection = 0.1
-  !$ thermohaline_coeff = 2
-  !$ thermohaline_option = 'Kippenhahn'
+  MLT_option = 'none'
 
   !! Turn off net
-  !$ max_abar_for_burning = -1
+  max_abar_for_burning = -1
   
   !! Atmosphere
-  !$ atm_option = 'T_tau'
-  !$ atm_T_tau_relation = 'Eddington'
-  !$ atm_T_tau_opacity = 'fixed'
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
 
   !! resolution
-  !$ mesh_delta_coeff = 0.5
-  !$ varcontrol_target = 0.5d-3
-  !$ time_delta_coeff = 0.5
+  mesh_delta_coeff = 0.5
+  varcontrol_target = 0.5d-3
+  time_delta_coeff = 0.5
   min_timestep_limit = 1d-20
-  max_allowed_nz = 20000 ! default 8k
+  max_allowed_nz = 20000
 
   merge_if_dlnR_too_small = .true.
   mesh_min_dlnR = 1d-9
@@ -77,6 +68,6 @@
 
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist8_fallback'
+  extra_controls_inlist2_name = 'inlist_folder/inlist8_fallback_extra'
 
 / ! end of controls namelist

@@ -3,16 +3,24 @@
 &star_job    
 
   saved_model_name = 'models/ns_env_ignited.mod'
-  save_model_filename = 'models/ns_env_Edd.mod' ! I say Edd but this might be 0.9*LEdd, depending on the value of x_ctrl(2) below
-  write_profile_when_terminate = .true.
-  filename_for_profile_when_terminate = 'LOGS/final.data'
+  save_model_filename = 'models/ns_env_Edd.mod' ! I say Edd but this is 0.7* or 0.9*LEdd, depending on the value of x_ctrl(2) below
+
+  !! Reset model number and age
+  !! Starting from here, age is t-t_ignition
+  set_initial_model_number = .true.
+  set_initial_age = .true.
+
+  !! Turn on hydrodynamics
+  change_v_flag = .true. 
+  change_initial_v_flag = .true. 
+  new_v_flag = .true.
 
   pgstar_flag = .true.
   show_timestep_limit_counts_when_terminate = .true.
-
+  
   !! Run-specific inlist
   read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist5_flash'
+  extra_star_job_inlist2_name = 'inlist_folder/inlist5_flash_extra' 
 
 / ! end of star_job namelist
 
@@ -20,33 +28,28 @@
 
   !! Stop when L/LEdd=x_ctrl(2) (at surface)
   x_logical_ctrl(2) = .true.
-  !$ x_ctrl(2) = 1.0
+  x_ctrl(2) = 0.9 ! this can be overwritten in the extra inlist
   
   !! Accrete solar mixture
   accrete_same_as_surface = .false. 
   accrete_given_mass_fractions = .true. 
-  !$ mass_change = 3d-10! Msun/year
-  !$ num_accretion_species = 3
-  !$ accretion_species_xa(1) = 0.7
-  !$ accretion_species_id(1) = 'h1'
-  !$ accretion_species_xa(2) = 0.28
-  !$ accretion_species_id(2) = 'he4'
-  !$ accretion_species_xa(3) = 0.02
-  !$ accretion_species_id(3) = 'c12'
+  mass_change = 3d-10! Msun/year
+  num_accretion_species = 3
+  accretion_species_xa(1) = 0.7
+  accretion_species_id(1) = 'h1'
+  accretion_species_xa(2) = 0.28
+  accretion_species_id(2) = 'he4'
+  accretion_species_xa(3) = 0.02
+  accretion_species_id(3) = 'c12'
 
   !! Atmosphere
-  !$ atm_option = 'T_tau'
-  !$ atm_T_tau_relation = 'Eddington'
-  !$ atm_T_tau_opacity = 'fixed'
-  !$ Pextra_factor = 2
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
+  Pextra_factor = 2
 
   !! Convection and mixing
-  !$ mixing_length_alpha = 1.5
-  !$ MLT_option = 'Henyey'
-  !$ use_Ledoux_criterion = .true.  
-  !$ alpha_semiconvection = 0.1
-  !$ thermohaline_coeff = 2
-  !$ thermohaline_option = 'Kippenhahn'
+  !! These parameters change from run to run, are defined in extra inlist controls
 
   !! Energy conservation
   use_gold_tolerances = .false.  ! default true
@@ -54,7 +57,7 @@
   convergence_ignore_equL_residuals = .true. ! default false
 
   !! Resolution
-  !$ varcontrol_target = 1d-3 ! default 1d-3
+  varcontrol_target = 1d-3 ! default 1d-3
   !$ mesh_delta_coeff = 0.5 ! default 1d0
   !$ time_delta_coeff = 1d0 ! default 1d0
   min_timestep_limit = 1d-20
@@ -68,13 +71,13 @@
   max_num_profile_models = 500
 
   !! Special file for history of mixing zones
-  ! Includes every zone, not just a fixed number as in history_columns.list
-  ! See run_star_extras
+  !! Includes every zone, not just a fixed number as in history_columns.list
+  !! See run_star_extras
   x_logical_ctrl(10) = .true.
   x_integer_ctrl(10) = 1 ! interval for saving mixing history
   
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist5_flash'
+  extra_controls_inlist2_name = 'inlist_folder/inlist5_flash_extra'
   
 / ! end of controls namelist

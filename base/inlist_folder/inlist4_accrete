@@ -7,7 +7,7 @@
 
   !! Nuclear network
   change_initial_net = .true.
-  !$ new_net_name = 'cno_extras_plus_fe56.net'
+  new_net_name = 'cno_extras_plus_fe56.net'
 
   !! Initial timestep
   set_initial_dt = .true.
@@ -17,8 +17,10 @@
   show_timestep_limit_counts_when_terminate = .true.
 
   !! Run-specific inlist
+  !! in case want to change something
+  !! e.g. putting new_net_name in that inlist will use that one instead of cno_extras_plus_fe56
   read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist4_accrete'
+  extra_star_job_inlist2_name = 'inlist_folder/inlist4_accrete_extra' ! of the folder where running from (not /base) 
 
 / ! end of star_job namelist
 
@@ -31,28 +33,28 @@
   !! Accrete solar mixture
   accrete_same_as_surface = .false. 
   accrete_given_mass_fractions = .true. 
-  !$ mass_change = 3d-10! Msun/year
-  !$ num_accretion_species = 3
-  !$ accretion_species_xa(1) = 0.7
-  !$ accretion_species_id(1) = 'h1'
-  !$ accretion_species_xa(2) = 0.28
-  !$ accretion_species_id(2) = 'he4'
-  !$ accretion_species_xa(3) = 0.02
-  !$ accretion_species_id(3) = 'c12'
+  mass_change = 3d-10! Msun/year
+  num_accretion_species = 3
+  accretion_species_xa(1) = 0.7
+  accretion_species_id(1) = 'h1'
+  accretion_species_xa(2) = 0.28
+  accretion_species_id(2) = 'he4'
+  accretion_species_xa(3) = 0.02
+  accretion_species_id(3) = 'c12'
 
   !! Atmosphere
-  !$ atm_option = 'T_tau'
-  !$ atm_T_tau_relation = 'Eddington'
-  !$ atm_T_tau_opacity = 'fixed'
-  !$ Pextra_factor = 2
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
+  Pextra_factor = 2
 
-  !! Convection and mixing
-  !$ mixing_length_alpha = 1.5
-  !$ MLT_option = 'Henyey'
-  !$ use_Ledoux_criterion = .true.  
-  !$ alpha_semiconvection = 0.1
-  !$ thermohaline_coeff = 2
-  !$ thermohaline_option = 'Kippenhahn'
+  !! Convection and mixing: using same parameters as the Ledoux run
+  mixing_length_alpha = 1.5
+  MLT_option = 'Henyey'
+  use_Ledoux_criterion = .true.  
+  alpha_semiconvection = 0.1
+  thermohaline_coeff = 2
+  thermohaline_option = 'Kippenhahn'
 
   !! Energy conservation
   use_gold_tolerances = .false.  ! default true
@@ -60,9 +62,9 @@
   convergence_ignore_equL_residuals = .true. ! default false
   
   !! Resolution
-  !$ varcontrol_target = 1d-3
-  !$ mesh_delta_coeff = 1.0
-  !$ time_delta_coeff = 1d0
+  varcontrol_target = 1d-3
+  mesh_delta_coeff = 1.0
+  time_delta_coeff = 1d0
 
   merge_if_dlnR_too_small = .true. ! default false
   mesh_min_dlnR = 5d-9 ! default 1d-9
@@ -73,6 +75,6 @@
 
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist4_accrete'
+  extra_controls_inlist2_name = 'inlist_folder/inlist4_accrete_extra'
 
 / ! end of controls namelist

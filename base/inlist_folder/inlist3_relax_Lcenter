@@ -7,12 +7,8 @@
 
   !! Set model luminosity
   relax_L_center = .true.
-  !$ new_L_center = 1.9e34 ! erg/s
+  new_L_center = 1.8e34 ! erg/s
   dlgL_per_step = 1d-2
-
-  !! Run-specific inlist
-  read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist3_relax_Lcenter'
 
 / ! end of star_job namelist
 
@@ -28,9 +24,5 @@
   !! Files
   photo_interval = 1000
   profile_interval = 1000
-
-  !! Run-specific inlist
-  read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist3_relax_Lcenter'
 
 / ! end of controls namelist

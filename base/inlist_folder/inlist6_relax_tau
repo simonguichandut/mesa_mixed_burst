@@ -24,7 +24,7 @@
 
   !! Run-specific inlist
   read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist6_relax_tau'
+  extra_star_job_inlist2_name = 'inlist_folder/inlist6_relax_tau_extra'
 
 / ! end of star_job namelist
 
@@ -41,18 +41,17 @@
   max_abar_for_burning = -1
   
   !! Atmosphere
-  !$ atm_option = 'T_tau'
-  !$ atm_T_tau_relation = 'Eddington'
-  !$ atm_T_tau_opacity = 'fixed'
-  !$ Pextra_factor = 2
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
+  Pextra_factor = 2
 
   !! Outer BC from YW18 (in turn from Quataert+2016)
   use_compression_outer_BC = .true.
   use_zero_dLdm_outer_BC = .true.
 
   !! Energy conservation
-  ! Seems like the first one is necessary to avoid a temperature spike at the inner boundary ..?
-  ! weird because no_dedt_form_during_relax defaults to true
+  ! Seems like the first one is necessary to avoid a temperature spike at the inner boundary
   always_use_dedt_form_of_energy_eqn = .false.
   ! always_use_eps_grav_form_of_energy_eqn = .true.
 
@@ -62,9 +61,9 @@
   use_dPrad_dm_form_of_T_gradient_eqn = .true.
 
   !! Resolution
-  !$ varcontrol_target = 0.5d-3
-  !$ mesh_delta_coeff = 0.5
-  !$ time_delta_coeff = 1.0
+  varcontrol_target = 0.5d-3
+  mesh_delta_coeff = 0.5
+  time_delta_coeff = 1.0
 
   min_timestep_limit = 1d-20
   max_allowed_nz = 20000 ! default 8k
@@ -78,6 +77,6 @@
 
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist6_relax_tau'
+  extra_controls_inlist2_name = 'inlist_folder/inlist6_relax_tau_extra'
 
 / ! end of controls namelist

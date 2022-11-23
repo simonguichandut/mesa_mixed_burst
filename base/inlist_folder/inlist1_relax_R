@@ -2,17 +2,13 @@
 
 &star_job    
 
-  saved_model_name = 'models/ns_env.mod' ! from ns_he 
+  saved_model_name = 'models/ns_env.mod' ! from ns_he test problem
   save_model_filename = 'models/ns_env_12km.mod'
 
   !! New radius
   relax_R_center = .true.
   relax_initial_R_center = .true.
   new_R_center = 1.2e6
-
-  !! Run-specific inlist
-  read_extra_star_job_inlist2 = .true.
-  extra_star_job_inlist2_name = 'inlist_folder/inlist1_relax_R' ! of the folder where running from (not /base)
 
 / ! end of star_job namelist
 
@@ -24,9 +20,5 @@
   !! Files
   photo_interval = 1000
   profile_interval = 1000
-
-  !! Run-specific inlist
-  read_extra_controls_inlist2 = .true.
-  extra_controls_inlist2_name = 'inlist_folder/inlist1_relax_R'
 
 / ! end of controls namelist

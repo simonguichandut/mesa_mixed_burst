@@ -67,13 +67,13 @@ class Extended_Profile:
         return 4*np.pi*self.prof.R_cm**2 * self.prof.Rho * self.prof.velocity
 
     def Mh1(self): # total column of hydrogen
-        return np.sum(self.dm*self.h1)
+        return np.sum(self.prof.dm*self.h1)
 
     def Mhe4(self): # total column of heliuem
-        return np.sum(self.dm*self.he4)
+        return np.sum(self.prof.dm*self.he4)
 
     def Mc12(self): # total column of carbon
-        return np.sum(self.dm*self.c12)
+        return np.sum(self.prof.dm*self.c12)
 
 
     def _is_available(self, var):
