@@ -1,6 +1,7 @@
 ! Main inlist file
 ! Adjust for local system
 ! PATH is full path to main directory, e.g. /home/ximun/mixed_burst/
+! In vim: %s/PATH/<your path>, escaping special characters with "\" (e.g. "home/mixed_burst" -" "home\/mixed_burst")
     
 &star_job
     
