@@ -7,6 +7,8 @@
   saved_model_name = 'models/ns_env_12km.mod'
   save_model_filename = 'models/ns_env_56Fe.mod'
 
+  set_initial_age = .true.
+
   !! Set optical depth boundary
   set_tau_factor = .true. 
   set_to_this_tau_factor = 150 ! for Eddington atmosphere, this places the outer boundary at tau=2/3*150=100

@@ -42,6 +42,11 @@
   accretion_species_xa(3) = 0.02
   accretion_species_id(3) = 'c12'
 
+  !! Limit luminosity increase
+  delta_lgL_nuc_limit = 0.01  ! default none
+  delta_lgL_nuc_hard_limit = 0.15 ! default none
+  lgL_nuc_burn_min = -2d0 ! default 0.5d0
+
   !! Atmosphere
   atm_option = 'T_tau'
   atm_T_tau_relation = 'Eddington'
@@ -57,18 +62,22 @@
   convergence_ignore_equL_residuals = .true. ! default false
 
   !! Resolution
-  varcontrol_target = 1d-3 ! default 1d-3
-  !$ mesh_delta_coeff = 0.5 ! default 1d0
-  !$ time_delta_coeff = 1d0 ! default 1d0
   min_timestep_limit = 1d-20
+  max_allowed_nz = 20000
+  !! others in extra inlist controls
 
   merge_if_dlnR_too_small = .true. ! default false
   mesh_min_dlnR = 5d-9 ! default 1d-9
   
   !! Files
   photo_interval = 500
-  profile_interval = 20
+  profile_interval = 5
+  history_interval = 1
   max_num_profile_models = 500
+  max_num_profile_models = 1000  !! careful this can fill up the disk
+
+  !! Force a high priority profile save at every x_ctrl(7) seconds
+  x_ctrl(7) = 1d-2
 
   !! Special file for history of mixing zones
   !! Includes every zone, not just a fixed number as in history_columns.list
