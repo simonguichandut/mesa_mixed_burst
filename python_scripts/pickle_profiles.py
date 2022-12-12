@@ -67,13 +67,13 @@ class Extended_Profile:
         return 4*np.pi*self.prof.R_cm**2 * self.prof.Rho * self.prof.velocity
 
     def Mh1(self): # total column of hydrogen
-        return np.sum(self.prof.dm*self.h1)
+        return np.sum(self.prof.dm*self.prof.h1)
 
-    def Mhe4(self): # total column of heliuem
-        return np.sum(self.prof.dm*self.he4)
+    def Mhe4(self): # total column of helium
+        return np.sum(self.prof.dm*self.prof.he4)
 
     def Mc12(self): # total column of carbon
-        return np.sum(self.prof.dm*self.c12)
+        return np.sum(self.prof.dm*self.prof.c12)
 
 
     def _is_available(self, var):
@@ -122,8 +122,8 @@ def make_data_dict(log_dir, vars):
 
 parser = argparse.ArgumentParser(description = "Export profile data to binary")
 
-parser.add_argument('-dir','--rundir', type=str, help='run directory', default=None)
-parser.add_argument('-L','--logdir', type=str, help='log directory (withing run_dir/LOGS/', default=None)
+parser.add_argument('-dir','--rundir', type=str, help='run directory', default="./")
+parser.add_argument('-L','--logdir', type=str, help='log directory (within run_dir/LOGS/', default=None)
 parser.add_argument('-o','--outfile', type=str, help='name of output file (will go in run_dir/pickle)', default='data.pickle')
 
 # Options for what to save

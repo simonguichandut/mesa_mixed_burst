@@ -45,6 +45,9 @@
   accretion_species_xa(3) = 0.02
   accretion_species_id(3) = 'c12'
 
+  !! want to "catch" ignition at the right time
+  delta_lgL_He_limit = 0.001d0 ! default 0.025d0
+
   !! Atmosphere
   atm_option = 'T_tau'
   atm_T_tau_relation = 'Eddington'

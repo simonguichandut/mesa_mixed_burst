@@ -30,7 +30,7 @@
   !! Maximum time in case not reaching the condition
   max_age_in_seconds = 20d0
 
-  max_model_number = 30000
+  max_model_number = 50000
 
   !! Analytic electron scattering opacity from Paczynski
   use_other_kap = .true. ! see run_star_extras
@@ -76,12 +76,12 @@
 
   !! Files
   photo_interval = 500
-  profile_interval = 20
+  profile_interval = 25
   history_interval = 1
   max_num_profile_models = 1000
 
   !! Force a high priority profile save at every x_ctrl(7) seconds
-  x_ctrl(7) = 0.1d0
+  x_ctrl(7) = 0.05d0
  
   !! Run-specific inlist
   read_extra_controls_inlist2 = .true.

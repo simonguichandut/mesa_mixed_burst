@@ -138,6 +138,7 @@
             ycol = s%P/(10**s%log_surface_gravity) ! y=P/g hydrostatic equilibrium
 
             !if (ycol(s%max_eps_nuc_k) > yd) then
+            !if ( ANY( ycol(s%max_eps_nuc_k) .gt. yd .and. s% mixing_type .ne. no_mixing ) ) then
             if ( ANY( ycol(s%max_eps_nuc_k) .gt. yd .and. s% mixing_type == convective_mixing ) ) then
                extras_check_model = terminate
                s% termination_code = t_xtra1
@@ -311,8 +312,8 @@
             kmax = s% nz ! in which case the routine below is the same as close_gaps in star/private/mix_info.f90
          end if
 
-         ! dbg = .false.
-         dbg = .true.
+         dbg = .false.
+         ! dbg = .true.
          ! if (dbg) write(*,*) 'begin close_gaps' 
 
          ierr = 0

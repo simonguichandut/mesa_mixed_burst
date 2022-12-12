@@ -11,9 +11,9 @@
   set_initial_age = .true.
 
   !! Turn on hydrodynamics
-  change_v_flag = .true. 
-  change_initial_v_flag = .true. 
-  new_v_flag = .true.
+  !change_v_flag = .true. 
+  !change_initial_v_flag = .true. 
+  !new_v_flag = .true.
 
   pgstar_flag = .true.
   show_timestep_limit_counts_when_terminate = .true.
