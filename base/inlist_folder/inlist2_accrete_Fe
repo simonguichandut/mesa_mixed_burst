@@ -13,6 +13,10 @@
   set_tau_factor = .true. 
   set_to_this_tau_factor = 150 ! for Eddington atmosphere, this places the outer boundary at tau=2/3*150=100
 
+  !! Run-specific inlist
+  read_extra_star_job_inlist2 = .true.
+  extra_star_job_inlist2_name = 'inlist_folder/inlist2_accrete_Fe_extra' ! of the folder where running from (not /base) 
+
 / ! end of star_job namelist
 
 &controls      
@@ -37,5 +41,9 @@
   !! Files
   photo_interval = 1000
   profile_interval = 1000
+
+  !! Run-specific inlist
+  read_extra_controls_inlist2 = .true.
+  extra_controls_inlist2_name = 'inlist_folder/inlist2_accrete_Fe_extra'
 
 / ! end of controls namelist

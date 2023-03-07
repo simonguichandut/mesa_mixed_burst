@@ -11,6 +11,7 @@ import scipy.integrate as integrate
 import argparse
 import pickle
 import py_mesa_reader as mr
+import warnings
 
 # Constants (cgs)
 G = 6.6726e-8

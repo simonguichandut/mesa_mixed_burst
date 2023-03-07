@@ -1,0 +1,8 @@
+# Ignore all
+/*
+!.gitignore
+
+# Whitelist inlist folders in some select runs
+!Schwarzschild/
+Schwarzschild/*
+!Schwarzschild/inlist_folder/

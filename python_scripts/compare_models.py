@@ -10,8 +10,10 @@ def make_Trho_plot(models, filename=None):
 
     iso_colors = {'none':'r'} # don't use red for composition
     linestyles = [':','--','-','-.']
-    if len(models)>len(linestyles):
-        print("not enough linestyles")
+    Nlinestyles = len(linestyles)
+
+    if len(models)>Nlinestyles:
+        warnings.warn("Not enough linestyles!")
 
     for m,model in enumerate(models):
         data = mr.MesaData(model)
@@ -27,7 +29,7 @@ def make_Trho_plot(models, filename=None):
                 iprev=i
                 current_iso=most_abundant[i]
         ranges.append([current_iso,iprev,-1])
-            
+
         for x in ranges:
             iso,a,b = x
             if iso not in iso_colors.keys():
@@ -41,14 +43,14 @@ def make_Trho_plot(models, filename=None):
         ax.legend(frameon=False, ncol=2, bbox_to_anchor=box, bbox_transform=trans, loc='lower right')
 
         # Overlay thin black line (different linestyles) over the composition to indicate which model
-        ax.loglog(data.d,data.T,lw=1.5,color='k',ls=linestyles[m])
+        ax.loglog(data.d,data.T,lw=1.5,color='k',ls=linestyles[m%Nlinestyles])
 
         # Plot the luminosity with the same linestyles, add the labels including 
         # ymax and rmax
         ymax = -integrate.trapz(data.d,data.R)
         name = model.replace('/',' : ').replace('_','\_')
         lab = ('%s\n'r'$r_\mathrm{max}$=%.3e km \quad $\log y_\mathrm{max}$=%.1f'%(name,data.R[0]/1e5,np.log10(ymax)))
-        ax2.loglog(data.d,data.L,color='r',ls=linestyles[m],label=lab)
+        ax2.loglog(data.d,data.L,color='r',ls=linestyles[m%Nlinestyles],label=lab)
 
         # Legend on the top left for models
         box,trans = (0,1),ax2.transAxes

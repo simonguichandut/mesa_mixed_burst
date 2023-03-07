@@ -11,9 +11,6 @@ base/old*
 # base_inlist should be modified (from template) for local path
 base/base_inlist
 
-# Run folder
-runs/**
-
 # python files not in dedicated scripts file are local only
 *.py
 !python_scripts/*.py

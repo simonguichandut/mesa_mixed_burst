@@ -1,7 +1,7 @@
 &pgstar
 
-! pgstar_interval = 10
-pgstar_interval = 10000000
+pgstar_interval = 10
+! pgstar_interval = 10000000
 !pause = .true.
 
 	Grid1_win_flag = .true.
