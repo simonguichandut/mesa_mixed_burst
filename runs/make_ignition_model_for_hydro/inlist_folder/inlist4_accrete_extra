@@ -1,0 +1,17 @@
+&star_job
+
+  ! Uncomment if using controls below
+  set_initial_age = .false.
+  set_initial_model_number = .false.
+
+/ ! end of star_job namelist
+
+&controls
+
+  ! once done, restart with a photo near the end of the run to get profiles right up to ignition
+  profile_interval=1
+  terminal_interval=1
+  photo_interval = 25
+  !photo_interval = 100
+
+/ ! end of controls namelist

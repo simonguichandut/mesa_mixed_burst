@@ -3,6 +3,14 @@
 !.gitignore
 
 # Whitelist inlist folders in some select runs
-!Schwarzschild/
-Schwarzschild/*
-!Schwarzschild/inlist_folder/
+!make_ignition_model*/
+make_ignition_model*/*
+!make_ignition_model*/inlist_folder/
+
+!Schwarzschild*/
+Schwarzschild*/*
+!Schwarzschild*/inlist_folder/
+
+!Ledoux*/
+Ledoux*/*
+!Ledoux*/inlist_folder/
