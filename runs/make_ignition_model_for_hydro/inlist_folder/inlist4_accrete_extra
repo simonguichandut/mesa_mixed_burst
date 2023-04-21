@@ -12,6 +12,7 @@
   profile_interval=1
   terminal_interval=1
   photo_interval = 25
+
   !photo_interval = 100
 
 / ! end of controls namelist

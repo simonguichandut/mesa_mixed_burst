@@ -1,16 +1,22 @@
-! Want to accrete less 56Fe (only a column ~4e10)
-! and extend the grid to lower density, so set tau_factor to 10
+! Want to accrete less 56Fe (only a column ~5e9)
+! and extend the grid to lower density, so set a lower tau_factor
 
 &star_job
 
+   !set_to_this_tau_factor = 150
    set_to_this_tau_factor = 10
 
-   pgstar_flag = .true.
+   !pgstar_flag = .true.
+
+   !set_initial_dt = .true.
+   seconds_for_initial_dt = 1
 
 / ! end of star_job namelist
 
 &controls
 
-   max_age = 4.0d-3
+   max_age = 0.455d-3
+
+   varcontrol_target = 1d-3
 
 / ! end of controls namelist
