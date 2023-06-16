@@ -24,6 +24,6 @@ Here's how to run our main model "Schwarzschild":
 5. `../base/star` Run MESA
 6. Repeat 4&5 two more times to do the rest of the simulation
 
-A template script is included (`template_run.sh`) to do steps 4 through 6 automatically.
+A template script is included (`template_run.sh`) to do steps 2 through 6 automatically.
 
 Note that these simulations are expensive. Both the flash and wind parts take tens of thousands of models to compute. For convenience, we provide the models at 90% Eddington in the `runs/`directory.
