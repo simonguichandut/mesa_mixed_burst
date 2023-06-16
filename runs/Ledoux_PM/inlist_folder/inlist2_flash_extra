@@ -1,0 +1,24 @@
+&star_job   
+
+/ ! end of star_job namelist
+
+&controls      
+
+  !! Convection and mixing
+  mixing_length_alpha = 1.5
+  MLT_option = 'Henyey'
+  use_Ledoux_criterion = .true.  
+  alpha_semiconvection = 0.1
+  thermohaline_coeff = 2.0
+
+  !! Predictive mixing
+  predictive_mix(1) = .true.
+  predictive_zone_type(1) = 'any'
+  predictive_zone_loc(1) = 'any'
+  predictive_bdy_loc(1) = 'top'
+
+  !! Resolution
+  mesh_delta_coeff = 0.5 ! default 1d0
+  varcontrol_target = 0.25d-3 ! default 1d-3
+
+/ ! end of controls namelist

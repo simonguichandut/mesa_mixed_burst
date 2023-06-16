@@ -1,0 +1,26 @@
+&star_job
+
+/ ! end of star_job namelist
+
+&controls      
+
+  !! Convection and mixing
+  mixing_length_alpha = 1.5
+  MLT_option = 'Henyey'
+  use_Ledoux_criterion = .false.  
+
+  min_convective_gap = 0.1
+  use_other_close_gaps = .true. ! routine in run_star_extras
+  x_ctrl(8) = 8.5 ! max log column depth for close gaps
+
+  !! Predictive mixing
+  predictive_mix(1) = .true.
+  predictive_zone_type(1) = 'any'
+  predictive_zone_loc(1) = 'any'
+  predictive_bdy_loc(1) = 'top'
+
+  !! Resolution
+  mesh_delta_coeff = 0.5 ! default 1
+  varcontrol_target = 0.5d-3 ! default 1d-3
+  
+/ ! end of controls namelist
