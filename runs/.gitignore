@@ -17,3 +17,7 @@ Schwarzschild*/*
 Ledoux*/*
 !Ledoux*/inlist_folder/
 !Ledoux*/models/*0.90Edd*
+
+# Whitelist all_models plot
+!plot_all_models_h1.py
+!all_models_h1.pdf
