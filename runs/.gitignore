@@ -2,15 +2,18 @@
 /*
 !.gitignore
 
-# Whitelist inlist folders in some select runs
+# Whitelist inlist folders and models in some select runs
 !make_ignition_model*/
 make_ignition_model*/*
 !make_ignition_model*/inlist_folder/
+!make_ignition_model*/models/
 
 !Schwarzschild*/
 Schwarzschild*/*
 !Schwarzschild*/inlist_folder/
+!Schwarzschild*/models/*0.90Edd*
 
 !Ledoux*/
 Ledoux*/*
 !Ledoux*/inlist_folder/
+!Ledoux*/models/*0.90Edd*

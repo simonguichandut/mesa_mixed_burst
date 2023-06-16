@@ -1,0 +1,22 @@
+! First run the full thing, then restart with a photo near the end of the run to get profiles 
+! right up to ignition of the burst.
+! For that restart, uncomment the controls below
+
+&star_job
+
+  ! Uncomment if using controls below
+  !set_initial_age = .false.
+  !set_initial_model_number = .false.
+
+/ ! end of star_job namelist
+
+&controls
+
+  photo_interval = 100
+
+  ! Uncomment for high frequency save
+  !profile_interval=1
+  !terminal_interval=1
+  !photo_interval = 25
+
+/ ! end of controls namelist

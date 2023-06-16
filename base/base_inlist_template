@@ -14,14 +14,10 @@
     
     !! Base inlists
     read_extra_star_job_inlist1 = .true.
-    extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist1_relax_R'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist2_accrete_Fe'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist3_relax_Lcenter'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist4_accrete'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist5_flash'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist6_relax_tau'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist7_wind'
-    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist8_decay'
+    extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist1_accrete'
+    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist2_flash'
+    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist3_relax_tau'
+    !extra_star_job_inlist1_name = 'PATH/base/inlist_folder/inlist4_wind'
     
 / ! end of star_job namelist
     
@@ -36,14 +32,10 @@
     
     !! Base inlists
     read_extra_controls_inlist1 = .true.
-    extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist1_relax_R'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist2_accrete_Fe'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist3_relax_Lcenter'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist4_accrete'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist5_flash'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist6_relax_tau'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist7_wind'
-    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist8_decay'
+    extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist1_accrete'
+    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist2_flash'
+    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist3_relax_tau'
+    !extra_controls_inlist1_name = 'PATH/base/inlist_folder/inlist4_wind'
     
 / ! end of controls namelist 
     
@@ -51,11 +43,7 @@
     
     read_extra_pgstar_inlist1 = .true.
     extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
-    !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
-    !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
-    !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
     !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar_flash'
-    !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
     !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
     !extra_pgstar_inlist1_name = 'PATH/base/inlist_folder/inlist_pgstar'
     

@@ -1,0 +1,87 @@
+! Accrete H,He and C (solar composition) until ignition
+
+&star_job    
+
+  !saved_model_name = 'models/ns_env.mod'
+  saved_model_name = '/home/ximun/projects/def-cumming/ximun/mesa_mixed_burst/make_env/ns_env.mod'
+  save_model_filename = 'models/ns_env_ignited.mod'
+
+  set_initial_age = .true.
+  set_initial_model_number = .true.
+
+  !! Nuclear network
+  change_initial_net = .true.
+  new_net_name = 'cno_extras_plus_fe56.net'
+
+  !! Initial timestep
+  set_initial_dt = .true.
+  seconds_for_initial_dt = 1d0
+
+  pgstar_flag = .true.
+  show_timestep_limit_counts_when_terminate = .true.
+
+  !! Run-specific inlist
+  !! in case want to change something
+  !! e.g. putting new_net_name in that inlist will use that one instead of cno_extras_plus_fe56
+  read_extra_star_job_inlist2 = .true.
+  extra_star_job_inlist2_name = 'inlist_folder/inlist1_accrete_extra' ! of the folder where running from (not /base) 
+
+/ ! end of star_job namelist
+
+&controls      
+
+  !! Stop when max(eps_nuc) is in the He layer (see run_star_extras)
+  !! This corresponds to "ignition"
+  x_logical_ctrl(1) = .true.
+
+  !! Accrete "solar" mixture (the only Z is c12)
+  accrete_same_as_surface = .false. 
+  accrete_given_mass_fractions = .true. 
+  mass_change = 3d-10! Msun/year
+  num_accretion_species = 3
+  accretion_species_xa(1) = 0.7
+  accretion_species_id(1) = 'h1'
+  accretion_species_xa(2) = 0.28
+  accretion_species_id(2) = 'he4'
+  accretion_species_xa(3) = 0.02
+  accretion_species_id(3) = 'c12'
+
+  !! want to "catch" ignition at the right time
+  delta_lgL_He_limit = 0.001d0 ! default 0.025d0
+
+  !! Atmosphere
+  atm_option = 'T_tau'
+  atm_T_tau_relation = 'Eddington'
+  atm_T_tau_opacity = 'fixed'
+  Pextra_factor = 2
+
+  !! Convection and mixing: using same parameters as the Ledoux run
+  mixing_length_alpha = 1.5
+  MLT_option = 'Henyey'
+  use_Ledoux_criterion = .true.  
+  alpha_semiconvection = 0.1
+  thermohaline_coeff = 2
+  thermohaline_option = 'Kippenhahn'
+
+  !! Energy conservation
+  use_gold_tolerances = .false.  ! default true
+  use_gold2_tolerances = .false. ! default true
+  convergence_ignore_equL_residuals = .true. ! default false
+  
+  !! Resolution
+  varcontrol_target = 1d-3
+  mesh_delta_coeff = 1.0
+  time_delta_coeff = 1d0
+
+  merge_if_dlnR_too_small = .true. ! default false
+  mesh_min_dlnR = 5d-9 ! default 1d-9
+
+  !! Files
+  photo_interval = 500
+  profile_interval = 50
+
+  !! Run-specific inlist
+  read_extra_controls_inlist2 = .true.
+  extra_controls_inlist2_name = 'inlist_folder/inlist1_accrete_extra'
+
+/ ! end of controls namelist

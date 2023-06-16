@@ -1,0 +1,54 @@
+Generated on 2023-06-08 23:48:56
+The following arguments were used: 
+input : ns_env_0.90Edd.mod
+output : None
+show : False
+method : h1_spline
+x1 : auto
+x2 : 1e7
+Npoints : 20
+
+The code for the smoothing function at this time was: 
+------------------------------------------------------------------------------
+def h1_spline(column_depth, iso_data, x1, x2, Npts):
+    xx = column_depth
+    yy = iso_data['h1']
+
+    imax = np.argmin(abs(xx-eval(x2)))
+
+    if x1=='auto':
+        imin = list(xx).index(xx[yy<max(yy)-0.005][0])-1
+    else:
+        imin = np.argmin(abs(xx-eval(x1)))
+
+    xx = xx[imin:imax]
+    yy = yy[imin:imax]
+
+    # Sub-sample in logspace
+    xxsub = np.logspace(np.log10(xx[0]), np.log10(xx[-1]), Npts)
+    # These points don't actually exist, take the closest ones
+    isub = [np.argmin(abs(xx-xi)) for xi in xxsub]
+
+    # Interpolate a spline
+    # The type of spline (Pchip) is a monotonic, piecewise cubic hermite polynomials
+    spl = interpolate.PchipInterpolator(xx[isub], yy[isub])
+
+    # New points
+    all_isos = list(iso_data.keys())
+    new_iso_data = {key:np.copy(iso_data[key]) for key in all_isos}   # new dictionary preserves isotope order
+    new_iso_data['h1'] = np.concatenate((iso_data['h1'][:imin], spl(xx), iso_data['h1'][imax:]))
+    
+    # Then leave all the metals as is, and helium is Y=1-X-Z
+    
+    Z = np.zeros(len(new_iso_data['h1']))
+    for iso in all_isos:
+        if iso in ('h1','he4'):
+            pass
+        else:
+            new_iso_data[iso] = iso_data[iso]
+            Z += iso_data[iso]
+
+    new_iso_data['he4'] = 1 - new_iso_data['h1'] - Z
+
+    return new_iso_data, imin, imax
+------------------------------------------------------------------------------

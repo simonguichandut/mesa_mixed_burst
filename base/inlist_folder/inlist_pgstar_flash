@@ -133,8 +133,7 @@
 
     ! -----------------------------------------------------------------------------------
 
-	read_extra_pgstar_inlist2 = .true.
-    extra_pgstar_inlist2_name = 'inlist_folder/inlist_pgstar_extra' ! of the folder where running from (not /base) 
-
+	!read_extra_pgstar_inlist2 = .true.
+    !extra_pgstar_inlist2_name = 'inlist_folder/inlist_pgstar_extra' ! of the folder where running from (not /base) 
 
 / ! end of pgstar namelist

@@ -110,11 +110,14 @@ def make_data_dict(log_dir, vars):
 
     for n in progressbar(index.profile_numbers, prefix="Reading profiles... "):
         if os.path.exists(profname(n)):
-            prof = mr.MesaData(profname(n))
-            P = Extended_Profile(prof)
+            try:
+                prof = mr.MesaData(profname(n))
+                P = Extended_Profile(prof)
 
-            for key in dic.keys():
-                    dic[key].append(P.get(key))
+                for key in dic.keys():
+                        dic[key].append(P.get(key))
+            except:
+                pass
 
     return dic
 

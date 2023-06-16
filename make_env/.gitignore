@@ -1,0 +1,6 @@
+make
+src
+LOGS
+photos
+*.list
+start.mod
