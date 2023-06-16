@@ -28,3 +28,6 @@ slurm*
 *temp*
 parallel_run_dir_list*
 *bfg*
+python_scripts/foo.py
+python_scripts/find_k_to_remove.py
+python_scripts/smooth_abundances.py
