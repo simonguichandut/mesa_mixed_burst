@@ -1,9 +1,9 @@
 ! Accrete H,He and C (solar composition) until ignition
+! Replace PATH with full path to main directory
 
 &star_job    
 
-  !saved_model_name = 'models/ns_env.mod'
-  saved_model_name = '/home/ximun/projects/def-cumming/ximun/mesa_mixed_burst/make_env/ns_env.mod'
+  saved_model_name = 'PATH/make_env/ns_env.mod'
   save_model_filename = 'models/ns_env_ignited.mod'
 
   set_initial_age = .true.

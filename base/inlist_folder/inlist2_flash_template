@@ -1,9 +1,10 @@
 ! Keep accreting and follow flash in detail, until Eddington in outer layers
+! Replace PATH with full path to main directory
 
 &star_job    
 
   !saved_model_name = 'models/ns_env_ignited.mod'
-  saved_model_name = '/home/ximun/projects/def-cumming/ximun/mesa_mixed_burst/runs/make_ignition_model/models/ns_env_ignited.mod'
+  saved_model_name = 'PATH/runs/make_ignition_model/models/ns_env_ignited.mod'
 
   save_model_filename = 'models/ns_env_Edd.mod' ! I say Edd but this is 0.7* or 0.9*LEdd, depending on the value of x_ctrl(2) below
 
@@ -11,11 +12,6 @@
   !! Starting from here, age is t-t_ignition
   set_initial_model_number = .true.
   set_initial_age = .true.
-
-  !! Turn on hydrodynamics
-  !change_v_flag = .true. 
-  !change_initial_v_flag = .true. 
-  !new_v_flag = .true.
 
   pgstar_flag = .true.
   show_timestep_limit_counts_when_terminate = .true.

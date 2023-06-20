@@ -15,7 +15,7 @@
   set_initial_dt = .true.
   seconds_for_initial_dt = 1d-10
 
-  !! If hydrodynamics were not on already, they need to now for the outer B.C.
+  !! Turn on hydrodynamics
   change_v_flag = .true. 
   change_initial_v_flag = .true. 
   new_v_flag = .true.
