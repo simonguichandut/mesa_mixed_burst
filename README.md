@@ -19,7 +19,7 @@ In our paper, each run starts from the same ignition model, created by the first
 Here's how to run our main model "Schwarzschild":
 1. `cd base && ./mk` (compile mesa)
 2. `cp base_inlist_template base_inlist` . Replace all intances of `PATH` with your own path where the code is installed. Do the same with `inlist_folder/inlist1_accrete_template` and `inlist_folder/inlist2_flash_template` (copy to same filenames without _template, and replace PATH).
-3. `cd ../runs/Schwarzschild && cp ../../base/base_inlist inlist`
+3. `cd ../runs/Schwarzschild && cp ../../base/base_inlist inlist`  (or to run this in the "Scratch" directory of a cluster, just copy the Schwarzschild directory there and cd to that instead...)
 4. `../base/next_inlist` Cycle once so that we start from the second inlist
 5. `../base/star` Run MESA
 6. Repeat 4&5 two more times to do the rest of the simulation
