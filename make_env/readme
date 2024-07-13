@@ -1,4 +1,6 @@
 This is a copy of MESA test_suite's make_env. Changed some controls in inlist_env to adjust the radius to 12km, the luminosity to 1.8e34, and the model mass to a column depth 1e11 g/cm^2.
 Just copy make/ and src/ from standard work directory, build, and run with ./star (inlist_header was copied to inlist, so ./star works directly).
 
-This creates env.mod, which is renamed to ns_env.mod, and used to start the calculation in runs/make_ignition_model
+This creates ns_env.mod, and used to start the calculation in runs/make_ignition_model
+
+(Change the column depth of the model by changing x_ctrl(2) in inlist_env. A model with a column depth of 5e9 is used in make_ignition_model_for_hydro. This is for a future paper...)
