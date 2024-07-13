@@ -1,0 +1,29 @@
+! First run the full thing, then restart with a photo near the end of the run to get profiles 
+! right up to ignition of the burst.
+! For that restart, uncomment the controls below
+
+&star_job
+
+  saved_model_name = '/home/ximun/projects/def-cumming/ximun/mesa_mixed_burst/make_env/ns_env_y5e9.mod'
+
+  !!!!!!!! Enforce 12km exact R_center (doesnt really work..)
+  !!!!!!!!relax_initial_R_center = .true.
+  !!!!!!!!new_R_center = 12d6
+  !!!!!!!!relax_R_center_dt = 1
+
+  ! Uncomment if using controls below
+  !set_initial_age = .false.
+  !set_initial_model_number = .false.
+
+/ ! end of star_job namelist
+
+&controls
+
+  photo_interval = 100
+
+  ! Uncomment for high frequency save
+  !profile_interval=1
+  !terminal_interval=1
+  !photo_interval = 25
+
+/ ! end of controls namelist
